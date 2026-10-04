@@ -1,7 +1,13 @@
 # 秋招中台（SQLite 绿色版）
 
+![License](https://img.shields.io/badge/License-MIT-green) ![Python](https://img.shields.io/badge/Python-3.9%2B-blue) ![依赖](https://img.shields.io/badge/第三方依赖-零-success) ![平台](https://img.shields.io/badge/Windows-开箱即用-brightgreen)
+
 > **模板要你自己填，它替你盯着邮箱**——邮箱自动抓校招邮件，考试/截止/Offer 自动进看板。
 > 纯 Python 标准库、零第三方依赖，**数据全部留在本机**（只访问你自己的邮箱，不上传任何服务器）。
+
+![近期任务页总览](assets/manual/tasks.png)
+
+**⬇️ 下载安装包**：右侧 [Releases](../../releases/latest) 页下载 zip → 解压 → 双击 `启动中台.bat` 即用（Windows 内置离线 Python 运行时，无需安装任何东西）。
 
 校招投递一站式本地中台：**邮箱自动抓取 → 规则引擎解析 → 本地 SQLite 存储 → 实时看板 → Obsidian 笔记同步**。
 
