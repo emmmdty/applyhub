@@ -1,0 +1,30 @@
+# ---- 隐私与运行时文件（含邮箱凭据/邮件数据，严禁入库、上传或分享） ----
+凭据.json
+config.json
+mail_state.json
+待确认队列.json
+待确认队列.json.corrupt
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite.bak
+*.lock
+logs/
+backups/
+__pycache__/
+*.pyc
+dist/
+
+# ---- 外观自定义（用户自己上传的 logo，属个人数据不入库） ----
+branding/
+
+# ---- 本机审计/内部交接产物（含个人上下文，不入库） ----
+ui-audit/
+交接-*.md
+_备份*/
+看板-旧版.html
+
+# ---- 零配置环境产物（打包脚本会收集 tools/runtime；.venv/uv.lock 本机生成） ----
+tools/runtime/
+.venv/
+uv.lock

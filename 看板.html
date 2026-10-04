@@ -1,0 +1,3154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("kb.theme")==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<link rel="icon" type="image/png" href="/assets/favicon-96.png">
+<title>秋招中台 · 实时看板</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+:root{
+  color-scheme:dark;
+  --bg:#0f1216; --sidebg:#0b0e12;
+  --card:#171b21; --card2:#1f252d;
+  --border:#272f39; --border2:#3b4653; --hairline:#2a323d;
+  --text:#e8edf3; --dim:#a3aeba; --faint:#7e8a97;
+  --blue:#6ea8fe; --cyan:#4dd0e1; --green:#4ade80;
+  --orange:#f0b35e; --red:#f87171; --purple:#c4a7fb;
+  --headbg:rgba(11,14,18,.86);
+  --glow1:rgba(110,168,254,.07); --glow2:rgba(196,167,251,.05);
+  --btnhbg:#242c36; --btnhbd:#414d5b;
+  --accsoft:rgba(110,168,254,.18);
+  --navon:rgba(110,168,254,.14);
+  --pulse:rgba(74,222,128,.4);
+  --warnfg:#f2c384; --warnbd:rgba(240,179,94,.38); --warnbg:rgba(240,179,94,.12);
+  --errfg:#fca5a5; --errbd:rgba(248,113,113,.35); --errbg:rgba(248,113,113,.09);
+  --c0fg:#fca5a5; --c0bd:rgba(248,113,113,.42);
+  --c1fg:#f2c384; --c1bd:rgba(240,179,94,.42);
+  --bwbg:rgba(240,179,94,.14); --bwfg:#f2c384; --bwbd:rgba(240,179,94,.38);
+  --bibg:rgba(196,167,251,.14); --bifg:#d4befc;
+  --babg:rgba(77,208,225,.13); --bafg:#8ce4ef;
+  --overbd:rgba(248,113,113,.32); --overbg:rgba(248,113,113,.07); --overfg:#fca5a5;
+  --ochipbg:rgba(248,113,113,.12); --ochipbd:rgba(248,113,113,.3); --ochipfg:#fecaca; --ochipb:#fff;
+  --waitbd:rgba(148,163,184,.22); --waitbg:rgba(148,163,184,.08); --waitfg:#b9c3d0;
+  --stwarnbd:rgba(240,179,94,.42);
+  --stdangbd:rgba(248,113,113,.5);
+  --stdangbg:linear-gradient(160deg,rgba(248,113,113,.12),var(--card) 60%);
+  --phbd:var(--hairline);
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.22);
+  --shadow2:0 12px 32px rgba(0,0,0,.45);
+  --r:14px; --rs:9px;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f7f7f5; --sidebg:#f0f0ee;
+  --card:#ffffff; --card2:#f1f2f4;
+  --border:#e7e8ea; --border2:#d5d8dd; --hairline:#e6e7e9;
+  --text:#1f2329; --dim:#4e5661; --faint:#6b7280;
+  --blue:#2563eb; --cyan:#0e7490; --green:#166534;
+  --orange:#b45309; --red:#dc2626; --purple:#6d28d9;
+  --headbg:rgba(240,240,238,.86);
+  --glow1:rgba(37,99,235,.05); --glow2:rgba(109,40,217,.04);
+  --btnhbg:#e9eaec; --btnhbd:#cfd3d8;
+  --accsoft:rgba(37,99,235,.14);
+  --navon:rgba(37,99,235,.1);
+  --pulse:rgba(22,163,74,.3);
+  --warnfg:#92400e; --warnbd:rgba(180,83,9,.32); --warnbg:rgba(217,119,6,.1);
+  --errfg:#b91c1c; --errbd:rgba(220,38,38,.32); --errbg:rgba(220,38,38,.06);
+  --c0fg:#b91c1c; --c0bd:rgba(220,38,38,.4);
+  --c1fg:#92400e; --c1bd:rgba(180,83,9,.4);
+  --bwbg:rgba(217,119,6,.12); --bwfg:#92400e; --bwbd:rgba(180,83,9,.35);
+  --bibg:rgba(109,40,217,.1); --bifg:#5b21b6;
+  --babg:rgba(14,116,144,.1); --bafg:#155e75;
+  --overbd:rgba(220,38,38,.3); --overbg:rgba(220,38,38,.05); --overfg:#b91c1c;
+  --ochipbg:rgba(220,38,38,.07); --ochipbd:rgba(220,38,38,.26); --ochipfg:#b91c1c; --ochipb:#7f1d1d;
+  --waitbd:rgba(100,116,139,.28); --waitbg:rgba(100,116,139,.07); --waitfg:#475569;
+  --stwarnbd:rgba(180,83,9,.4);
+  --stdangbd:rgba(220,38,38,.42);
+  --stdangbg:linear-gradient(160deg,rgba(220,38,38,.07),var(--card) 60%);
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 1px 4px rgba(16,24,40,.05);
+  --shadow2:0 12px 32px rgba(16,24,40,.14);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","MiSans","HarmonyOS Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  font-size:14px;line-height:1.6;color:var(--text);min-height:var(--vp-h,100vh);
+  background:radial-gradient(1100px 480px at 88% -10%,var(--glow1),transparent 60%),
+             radial-gradient(900px 420px at -6% 32%,var(--glow2),transparent 55%),
+             var(--bg);
+  padding-left:210px;transition:padding-left .18s ease;
+}
+body.side-collapsed{padding-left:64px}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+::selection{background:var(--accsoft)}
+/* ---------- 侧边栏 ---------- */
+.side{position:fixed;top:0;left:0;bottom:0;width:210px;z-index:30;display:flex;flex-direction:column;
+  background:var(--sidebg);border-right:1px solid var(--border);padding:18px 12px 14px;
+  transition:width .18s ease}
+.brand{display:flex;align-items:center;gap:11px;padding:0 8px 16px}
+.sidebtn{width:26px;height:26px;border-radius:8px;border:none;background:transparent;color:var(--dim);
+  cursor:pointer;display:grid;place-items:center;flex:none;margin-left:auto;transition:.15s}
+.sidebtn:hover{background:var(--card2);color:var(--text)}
+.sidebtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.side.collapsed{width:64px;padding:16px 8px 12px}
+.side.collapsed .brand{flex-direction:column;gap:9px;padding:0 0 12px;align-items:center}
+.side.collapsed .btext{display:none}
+/* 收拢态不再显示收拢/展开按钮：点击 logo 即展开（2026-09-26 用户定版） */
+.side.collapsed .sidebtn{display:none}
+.side.collapsed .logo{cursor:pointer}
+.side.collapsed .nav{width:100%}
+.side.collapsed .navi{justify-content:center;padding:10px 0;position:relative}
+.side.collapsed .navi>span:not(.nbadge){display:none}
+.side.collapsed .nbadge{position:absolute;top:2px;right:4px;min-width:16px;width:auto;height:16px;
+  padding:0 4px;font-size:10px;line-height:16px;border-radius:999px}
+.logo{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;overflow:hidden;
+  background:color-mix(in srgb,var(--card2) 88%,#c53a32);border:1px solid color-mix(in srgb,#c53a32 42%,transparent);
+  box-shadow:0 3px 10px rgba(197,58,50,.16)}
+.logo img{width:30px;height:30px;object-fit:contain;animation:logo-bless 4.8s ease-in-out infinite}
+@keyframes logo-bless{0%,76%,100%{transform:translateY(0);filter:drop-shadow(0 0 0 transparent)}88%{transform:translateY(-1px) scale(1.04);filter:drop-shadow(0 0 4px rgba(232,182,74,.7))}}
+.logo:hover img{animation-duration:1.5s}
+@media(prefers-reduced-motion:reduce){.logo img{animation:none}}
+/* 侧栏展开动画期间（width 64→210 过渡中）文字不竖排（2026-09-26 反馈）：
+   nowrap+ellipsis 让文字以省略号渐显，btext 允许收缩（min-width:0），永不逐字换行 */
+.side h1{font-size:15px;font-weight:700;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btext{min-width:0;overflow:hidden}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none;position:relative}
+/* 呼吸圈用 transform/opacity 的伪元素（合成层动画）——原 box-shadow 版每帧重绘顶栏，
+   滚动时被反馈为整条抖动（2026-09-26 修） */
+.dot.ok{background:var(--green);animation:none}
+.dot.ok::after{content:"";position:absolute;inset:-1px;border-radius:50%;background:var(--green);
+  opacity:0;animation:pulse 2.2s ease-out infinite}
+.dot.err{background:var(--red);animation:none}
+@keyframes pulse{0%{transform:scale(1);opacity:.5}70%{transform:scale(2.6);opacity:0}100%{transform:scale(2.6);opacity:0}}
+.stale{font-size:10.5px;color:var(--warnfg);background:var(--warnbg);border:1px solid var(--warnbd);
+  padding:0 7px;border-radius:999px;line-height:17px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.navi{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;
+  color:var(--dim);text-decoration:none;font-size:13.5px;
+  transition:background .15s,color .15s}
+.navi>span:not(.nbadge){min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navi:hover{background:var(--card2);color:var(--text)}
+.navi.on{background:var(--navon);color:var(--blue);font-weight:600}
+.nico{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.navi.on .nico{opacity:1}
+.nbadge{margin-left:auto;font-size:11px;font-weight:600;padding:0 7px;border-radius:999px;line-height:18px;flex:none}
+.nbadge.red{background:var(--errbg);color:var(--errfg);border:1px solid var(--errbd)}
+.nbadge.orange{background:var(--warnbg);color:var(--warnfg);border:1px solid var(--warnbd)}
+.nbadge.gray{background:var(--card2);color:var(--dim);border:1px solid var(--border)}
+.switch{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:12.5px;color:var(--dim)}
+.switch input{display:none}
+.track{width:34px;height:19px;border-radius:999px;background:var(--card2);border:1px solid var(--border2);
+  position:relative;transition:.25s;flex:none}
+.track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;
+  background:var(--dim);transition:.25s}
+.switch input:checked+.track{background:var(--accsoft);border-color:var(--blue)}
+.switch input:checked+.track::after{left:16px;background:var(--blue)}
+/* ---------- 顶栏：左=页面大标题，右=状态/自动刷新/工具（2026-09-26 定版）
+   position:fixed 脱离滚动层——滚动时整条绝不移动（sticky 曾有滚动抖动反馈）；
+   .ptin 与 main 同宽同边距（流体 min(1680,100%)/28），内容列始终对齐；--tbh 由 JS 按实高同步 */
+.pagetools{position:fixed;top:0;left:210px;right:0;z-index:22;background:var(--bg);transition:left .18s ease}
+body.side-collapsed .pagetools{left:64px}
+.ptin{max-width:min(1680px,100%);margin:0 auto;padding:5px 28px 7px;display:flex;align-items:center;
+  justify-content:space-between;gap:16px}
+.ptitle{min-width:0}
+.ptitle h1{font-size:17px;font-weight:700;letter-spacing:.2px;margin:0;line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ptitle p{font-size:12px;color:var(--dim);margin:1px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ptools{display:flex;align-items:center;gap:8px;flex:none}
+.pstatus{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--dim);white-space:nowrap}
+.btn.iconbtn{padding:8px 10px}
+/* 顶栏四个控件统一等大（34px 高；图标按钮正方形）（2026-09-26 用户反馈） */
+#refresh,#zout,#zin,#theme{height:34px;padding:0 10px}
+#refresh,#theme{width:34px;padding:0;justify-content:center}
+#theme{margin-left:6px}
+.pagetools svg{display:block;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+/* ---------- 按钮 ---------- */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--rs);
+  border:1px solid var(--border2);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;
+  font-family:inherit;transition:background .15s,border-color .15s,box-shadow .15s}
+.btn:hover{background:var(--btnhbg)}
+.btn:active{transform:scale(.97)}
+.btn .ico{display:inline-block}
+.btn.loading .ico{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn.sm{padding:4px 10px;font-size:12px;border-radius:8px}
+.btn[disabled]{opacity:.4;cursor:default}
+#addbtn,#afsave{background:var(--blue);border-color:transparent;color:#fff;font-weight:600}
+#addbtn:hover,#afsave:hover{filter:brightness(1.08);background:var(--blue)}
+html[data-theme="dark"] #addbtn,html[data-theme="dark"] #afsave{color:#0b1220}
+html[data-theme="light"] .wcol.today .wn{color:#1d4ed8}
+/* ---------- 错误横幅 / 提示 ---------- */
+/* 顶栏为 fixed：错误条须让出顶栏高度（--tbh 由 JS 同步），出现时主区不再重复预留 */
+#errbar{display:none;max-width:min(1680px,100%);margin:calc(var(--tbh,54px) + 10px) auto 0;padding:11px 16px;border-radius:12px;font-size:13px;color:var(--errfg);
+  background:var(--errbg);border:1px solid var(--errbd)}
+#errbar.show{display:block}
+#errbar.show + main{padding-top:12px}
+/* 未配置邮箱的引导横幅（橙色系，与错误条区分） */
+#setupbar{display:none;max-width:min(1680px,100%);margin:calc(var(--tbh,54px) + 10px) auto 0;padding:11px 16px;
+  border-radius:12px;font-size:13px;background:var(--warnbg,rgba(245,158,11,.12));border:1px solid rgba(245,158,11,.45);
+  color:var(--warnfg,#d97706)}
+#setupbar.show{display:block}
+#setupbar.show + main{padding-top:12px}
+#setupbar a{color:inherit;font-weight:700}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);opacity:0;pointer-events:none;
+  transition:.22s;background:var(--text);color:var(--bg);border-radius:10px;padding:9px 16px;font-size:13px;
+  box-shadow:var(--shadow2);z-index:50;max-width:80vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ---------- 布局 ---------- */
+/* 内容宽流体（2026-09-26 定版）：1080p/2K/4K 同比例扩展，超宽屏封顶 1680 防拉扁 */
+main{max-width:min(1680px,100%);margin:0 auto;padding:var(--tbh,54px) 28px 8px}
+.page{animation:pagein .2s ease both}
+@keyframes pagein{from{opacity:0;transform:translateY(5px)}}
+.pagerow{display:flex;justify-content:flex-end;align-items:center;margin:0 0 14px;flex-wrap:wrap;gap:10px}
+.statnote{font-size:12px;color:var(--faint);margin:0 0 10px}
+/* KPI 统计卡：强制单行（auto-fit 在窄窗口会挤成 6+1，2026-09-26 修） */
+.stats{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:14px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;
+  box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s;min-width:0}
+.stat:hover{border-color:var(--border2);box-shadow:var(--shadow2)}
+.stat .num{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1.15;font-variant-numeric:tabular-nums}
+.stat .lbl{font-size:12.5px;color:var(--dim);margin-top:3px}
+.stat .sub{font-size:12px;color:var(--faint);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat.warn{border-color:var(--stwarnbd)}
+.stat.warn .num{color:var(--orange)}
+.stat.danger{border-color:var(--stdangbd);background:var(--stdangbg)}
+.stat.danger .num{color:var(--red)}
+.grid{display:grid;gap:16px;margin-top:16px}
+.g-a{grid-template-columns:1.25fr 1fr;align-items:start}
+.g-2{grid-template-columns:1fr 1fr;align-items:start}
+.g-dist{grid-template-columns:1fr 1fr 1fr;align-items:stretch}
+.g-dist .panel{height:100%;display:flex;flex-direction:column}
+.g-dist .ph{flex:none}
+/* 三卡内容占满等高：body 弹性列 + 子项 space-between 均分余量（2026-09-26 用户反馈） */
+.g-dist .body{flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0}
+/* 任务页视口仪表盘（2026-09-26 定版 方向二）：页面高 = 视口(布局px --vp-h) − 顶栏 − 页脚，
+   两卡永等高、占满一屏、窗口不整页滚动；上方提示条/今日截止出现时 .g-a(flex:1) 自动收缩让位；
+   卡头(.ph)固定，#schedule/#calendar 各自内部滚动；窄视口单列时 grid-auto-rows 均分 */
+#page-tasks:not([hidden]){display:flex;flex-direction:column;overflow:hidden;
+  height:calc(var(--vp-h,100vh) - var(--tbh,54px) - var(--foot-h,74px) - 8px)}
+#page-tasks .grid.g-a{flex:1;min-height:0;align-items:stretch;grid-auto-rows:minmax(0,1fr)}
+#page-tasks .g-a .panel{display:flex;flex-direction:column;min-height:0}
+#page-tasks .g-a .body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);min-width:0}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 20px 12px;
+  border-bottom:1px solid var(--hairline);flex-wrap:wrap}
+.ph h2{font-size:15px;font-weight:600;letter-spacing:.2px}
+.ph .hint{font-size:12px;color:var(--faint)}
+.body{padding:16px 20px 20px}
+.empty{text-align:center;color:var(--faint);font-size:13px;padding:30px 0}
+/* ---------- 范围切换 / 分段控件 ---------- */
+.ranges{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rbtn{font-size:12px;padding:4px 11px;border-radius:999px;border:1px solid transparent;background:transparent;
+  color:var(--dim);cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s}
+.rbtn:hover{background:var(--card2);color:var(--text)}
+.rbtn.on{background:var(--navon);border-color:transparent;color:var(--blue);font-weight:600}
+.rdates{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--faint)}
+.rdates input[type=date]{font-size:12px;background:var(--card);border:1px solid var(--border2);border-radius:7px;
+  color:var(--text);padding:3px 6px;font-family:inherit}
+/* ---------- 异常条 ---------- */
+#queuebar,#duetoday,#overdue,#waitresult{display:none;margin-top:14px;padding:13px 16px;border-radius:12px}
+#queuebar.show,#duetoday.show,#overdue.show,#waitresult.show{display:block}
+#queuebar{background:var(--ochipbg);border:1px solid var(--ochipbd)}
+#duetoday{background:var(--warnbg);border:1px solid var(--warnbd)}
+#overdue{background:var(--overbg);border:1px solid var(--overbd)}
+#waitresult{background:var(--waitbg);border:1px solid var(--waitbd)}
+#queuebar .at{font-size:13px;font-weight:600;color:var(--c0fg);margin-bottom:9px}
+#duetoday .at{font-size:13px;font-weight:600;color:var(--warnfg);margin-bottom:9px}
+#overdue .at{font-size:13px;font-weight:600;color:var(--overfg);margin-bottom:9px}
+#waitresult .at{font-size:13px;font-weight:600;color:var(--waitfg);margin-bottom:9px}
+.items{display:flex;flex-wrap:wrap;gap:8px}
+.qchip{font-size:12.5px;padding:5px 11px;border-radius:9px;background:var(--ochipbg);
+  border:1px solid var(--ochipbd);color:var(--ochipfg);display:inline-flex;align-items:center;gap:7px;max-width:100%}
+.qchip b{color:var(--ochipb);font-weight:600}
+.qretry{font-size:12px;padding:2px 9px;border-radius:7px;border:1px solid var(--ochipbd);
+  background:transparent;color:inherit;cursor:pointer;font-family:inherit;flex:none;transition:.15s}
+.qretry:hover:not(:disabled){background:var(--ochipbd);color:#fff}
+.qretry:disabled{opacity:.5;cursor:wait}
+.qfrom{font-size:11px;color:var(--faint)}
+.qlink{display:block;font-size:12.5px;color:var(--blue);text-decoration:underline;margin:3px 0;word-break:break-all;cursor:pointer}
+.qlink:hover{color:var(--text)}
+.mdpre{white-space:pre-wrap;font-size:12.5px;color:var(--dim);background:var(--card2);border:1px solid var(--border);
+  border-radius:9px;padding:10px 12px;max-height:38vh;overflow:auto;margin-top:6px;line-height:1.75;user-select:text;overflow-wrap:anywhere}
+.qdrop{border-color:var(--border);color:var(--dim)}
+.qdrop:hover:not(:disabled){background:var(--border);color:#fff}
+.ochip{font-size:12.5px;padding:5px 11px;border-radius:9px;background:var(--ochipbg);
+  border:1px solid var(--ochipbd);color:var(--waitfg)}
+#duetoday .ochip{background:var(--bwbg);border-color:var(--bwbd,var(--warnbd));color:var(--bwfg)}
+.ochip b{color:var(--ochipb);font-weight:600}
+.ochip .x{cursor:pointer;opacity:.55;margin-left:8px;font-size:11px}
+.ochip .x:hover{opacity:1;color:var(--red)}
+.ochip.res{cursor:pointer;border-style:dashed;opacity:.78}
+.ochip.res:hover{opacity:1}
+.emark{font-weight:700}
+.emark.ok{color:var(--green)}
+.emark.miss{color:var(--red)}
+.emark:not(.ok):not(.miss){color:var(--faint)}
+.wvlink{font-size:11px;color:var(--dim);cursor:pointer;margin-right:5px;text-decoration:underline}
+.wvlink:hover{color:var(--red)}
+.ckchip{accent-color:var(--blue);width:14px;height:14px;vertical-align:middle;cursor:pointer;margin-left:2px}
+/* ---------- 近期安排 ---------- */
+.tl-day{display:flex;align-items:baseline;gap:8px;margin:16px 0 7px;font-size:13.5px;font-weight:600}
+.tl-day:first-child{margin-top:2px}
+.tl-day .tk{font-weight:500;font-size:12px;color:var(--dim)}
+.tl-badge{font-size:11px;font-weight:600;padding:0 6px;line-height:16px;border-radius:999px;background:var(--navon);color:var(--blue);margin-left:2px}
+.tkchip{display:inline-block;font-size:11.5px;font-weight:600;padding:0 7px;line-height:18px;
+  border-radius:6px;margin-left:4px;vertical-align:baseline}
+.tkchip.c-ba{background:var(--babg);color:var(--bafg)}
+.tkchip.c-bw{background:var(--bwbg);color:var(--bwfg)}
+.tkchip.c-bi{background:var(--bibg);color:var(--bifg)}
+.tkchip.c-bo{background:var(--waitbg);color:var(--waitfg)}
+.tkchip.done{opacity:.4;text-decoration:line-through}
+.tl-day.pastday{color:var(--faint)}
+.tl-day.pastday .tk{color:var(--faint)}
+.ev{display:grid;grid-template-columns:88px 96px minmax(0,1fr) 88px 58px;gap:10px;align-items:center;
+  font-size:13px;padding:8px 2px;border-bottom:1px solid var(--hairline);transition:background .12s}
+.ev:hover{background:color-mix(in srgb,var(--card2) 55%,transparent)}
+.ev:last-child{border-bottom:none}
+.ev .badge{justify-self:start}
+.ev .etm{text-align:center;color:var(--dim);font-variant-numeric:tabular-nums;font-size:12.5px}
+.ev .eco{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev .eco b{font-weight:600}
+.ev .elink a{color:var(--blue);text-decoration:none;font-size:12.5px}
+.ev .elink a:hover{text-decoration:underline}
+.ev .nolink{color:var(--faint)}
+.ev.evpast{opacity:.45}
+.ev.evdone{opacity:.65}
+.ev.evpast.evdone{opacity:.5}
+.ev.evdone .badge{filter:grayscale(.9)}
+.ev.evdone .etm,.ev.evdone .eco,.ev.evdone .elink a,.ev.evdone .nolink{
+  text-decoration:line-through;color:var(--dim)}
+.ev.evdone .eco b{color:var(--dim);text-decoration:line-through}
+.ev .ckcell{display:flex;align-items:center}
+.ev .ck{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+.ckauto{font-size:10.5px;color:var(--faint);border:1px dashed var(--border2);border-radius:6px;
+  padding:0 6px;line-height:17px;display:inline-block;cursor:default;white-space:nowrap}
+.badge{font-size:11.5px;padding:2px 8px;border-radius:6px;flex:none;font-weight:500}
+.badge.bw{background:var(--bwbg);color:var(--bwfg)}
+.badge.bi{background:var(--bibg);color:var(--bifg)}
+.badge.ba{background:var(--babg);color:var(--bafg)}
+.badge.bo{background:var(--waitbg);color:var(--waitfg);border:1px dashed var(--waitbd)}
+/* ---------- 漏斗 / 条形图 ---------- */
+.frow{display:grid;grid-template-columns:84px 1fr 40px;gap:10px;align-items:center;margin-bottom:9px}
+.frow .fl{font-size:12.5px;color:var(--dim);text-align:right}
+.frow .ft{min-width:0}
+.frow .fb{height:22px;border-radius:7px;min-width:2px;transition:width .5s}
+.frow .fn{font-size:14px;color:var(--dim);font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.fconv{font-size:11.5px;color:var(--faint);margin:0 0 8px 94px;line-height:1.4}
+.fnote{font-size:11.5px;color:var(--faint);margin-top:9px}
+.rtstats{display:flex;gap:26px;margin-bottom:14px}
+.rtstats b{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;display:block}
+.rtstats span{font-size:12px;color:var(--faint)}
+.rbuckets{display:flex;gap:10px;align-items:flex-end;margin-bottom:14px}
+.rb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.rb i{display:block;width:70%;border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--blue),transparent 160%)}
+.rb span{font-size:11px;color:var(--faint)}
+.rb em{font-style:normal;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.rttitle{font-size:12px;color:var(--faint);margin:6px 0 9px;padding-top:11px;border-top:1px solid var(--hairline)}
+.ir{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:13px}
+.ir:last-child{border-bottom:none}
+.ir b{flex:none}
+.ir .ist{font-size:12px;color:var(--dim);flex:1}
+.ir .idays{font-variant-numeric:tabular-nums;font-weight:600}
+.fhleg{display:flex;gap:18px;font-size:12.5px;color:var(--dim);margin-bottom:7px}
+.fhleg span{font-weight:600}
+/* ---------- 图表 ---------- */
+.brow{display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer;border-radius:8px;outline:none;transition:background .12s}
+.brow:last-child{margin-bottom:0}
+.brow:hover{background:var(--card2)}
+.brow:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.bl{width:64px;flex:none;font-size:12.5px;color:var(--dim);text-align:right;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.bt{flex:1;height:14px;background:var(--card2);border-radius:7px;overflow:hidden;min-width:0}
+.bb{height:100%;border-radius:7px;width:0;transition:width .7s cubic-bezier(.22,1,.36,1)}
+.bn{width:32px;flex:none;font-size:12.5px;font-variant-numeric:tabular-nums}
+.trend{display:flex;gap:5px;align-items:flex-end;height:150px}
+.tcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px}
+.tcnt{font-size:11px;color:var(--dim);height:14px;line-height:14px;font-variant-numeric:tabular-nums}
+.tbar{width:100%;max-width:24px;border-radius:5px 5px 3px 3px;
+  background:linear-gradient(180deg,var(--blue),var(--accsoft))}
+.tbar.zero{background:var(--card2)}
+.tdate{font-size:11px;color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* ---------- 投递记录表 / 新增表单 ---------- */
+.tblbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.tsearch{font-size:13px;padding:7px 12px;border-radius:9px;border:1px solid var(--border2);
+  background:var(--card);color:var(--text);width:210px;font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.tsearch:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--accsoft)}
+.tsearch::placeholder{color:var(--faint)}
+.tblwrap{overflow-x:auto;padding:4px 20px 14px}
+table.rec{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:920px}
+table.rec th{font-size:12px;color:var(--faint);text-align:left;font-weight:500;padding:9px 10px;
+  border-bottom:1px solid var(--border);white-space:nowrap}
+.th-sort{cursor:pointer}
+.th-sort:hover{color:var(--text)}
+.th-sort.on{color:var(--blue)}
+.th-sort.on::after{content:" ▾"}
+.th-sort.on.asc::after{content:" ▴"}
+table.rec td{padding:10px;border-bottom:1px solid var(--hairline);vertical-align:middle;white-space:nowrap}
+table.rec tbody tr{transition:background .12s}
+table.rec tbody tr:hover{background:var(--card2)}
+table.rec tbody tr:last-child td{border-bottom:none}
+table.rec tr.rowterm{opacity:.55}
+table.rec .co{font-weight:600}
+table.rec .po{color:var(--dim)}
+.trunc{display:inline-block;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+.rlink{color:var(--blue);text-decoration:none;font-size:12.5px}
+.rlink:hover{text-decoration:underline}
+.dim{color:var(--faint)}
+.stsel{font-size:12.5px;border-radius:8px;border:1px solid var(--border2);background:var(--card);
+  color:var(--text);padding:5px 8px;font-family:inherit;cursor:pointer;transition:border-color .15s}
+.stsel:hover{border-color:var(--btnhbd)}
+#afill{display:none;margin:0 20px 14px;padding:16px;border:1px dashed var(--border2);border-radius:12px;background:var(--card2)}
+#afill.show{display:block}
+.afrow{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.af{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--faint)}
+.af input,.af select,.af textarea{font-size:13px;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--card);color:var(--text);font-family:inherit;min-width:140px;outline:none;transition:border-color .15s,box-shadow .15s}
+.af input:focus,.af select:focus,.af textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--accsoft)}
+.af textarea{resize:vertical;line-height:1.7;font-family:inherit}
+.opbtn{font-size:12.5px;padding:4px 10px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--card);color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s;
+  display:inline-flex;align-items:center;justify-content:center;min-width:28px;min-height:26px}
+.opbtn:hover{border-color:var(--blue);color:var(--text)}
+.opbtn.on{background:var(--navon);border-color:transparent;color:var(--blue);font-weight:600}
+.opbtn svg{display:block;width:14px;height:14px}
+.opbtn.danger{color:var(--red);border-color:var(--errbd)}
+.opbtn.danger:hover{background:var(--errbg);border-color:var(--errbd)}
+.btn.danger{color:var(--red);border-color:var(--errbd)}
+.btn.danger:hover{background:var(--errbg);border-color:var(--errbd)}
+tr.editrow td{background:var(--card2);white-space:normal}
+table.rec .af{min-width:110px}
+/* ---------- 分页 ---------- */
+.pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;
+  padding:12px 20px 16px;font-size:12.5px;color:var(--dim);flex-wrap:wrap}
+.pager .pginfo{font-variant-numeric:tabular-nums}
+.pager .pgbtn{font-size:12.5px;padding:4px 12px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--card);color:var(--text);cursor:pointer;font-family:inherit;transition:.15s}
+.pager .pgbtn:hover:not(:disabled){border-color:var(--blue)}
+.pager .pgbtn:disabled{opacity:.35;cursor:default}
+.pager select{font-size:12.5px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--card);color:var(--text);padding:4px 8px;font-family:inherit;cursor:pointer}
+.pager .pgjump{width:46px;font-size:12.5px;padding:4px 6px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--card);color:var(--text);font-family:inherit;text-align:center;outline:none;transition:border-color .15s}
+.pager .pgjump:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--accsoft)}
+.pager .pgjump::placeholder{color:var(--faint)}
+/* ---------- 卡住 / 邮件 ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.schip{font-size:12.5px;padding:5px 12px;border-radius:999px;background:var(--warnbg);
+  border:1px solid var(--warnbd);color:var(--warnfg)}
+.schip b{color:var(--warnfg);font-weight:600}
+.schip.hot{background:var(--errbg);border-color:var(--errbd);color:var(--errfg)}
+.schip.hot b{color:var(--errfg)}
+.schip.cool{background:var(--waitbg);border-color:var(--waitbd);color:var(--waitfg)}
+.schip.cool b{color:var(--waitfg)}
+.schip a{margin-left:6px}
+.mail{display:flex;flex-direction:column}
+.mrow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--hairline);
+  font-size:13px;min-width:0;cursor:pointer;border-radius:8px;outline:none;transition:background .12s}
+.mrow:last-child{border-bottom:none}
+.mrow:hover{background:var(--card2)}
+.mrow:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.mtime{color:var(--faint);flex:none;width:92px;font-size:12px;font-variant-numeric:tabular-nums}
+.mco{font-weight:600;flex:none;max-width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msj{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 邮件页：两卡等高 + 内容纵向填满（行 flex:1 均分）（2026-09-26 用户反馈） */
+#page-mail .g-2{align-items:stretch}
+#page-mail .g-2 .panel{display:flex;flex-direction:column}
+#page-mail .ph{flex:none}
+#page-mail .body{flex:1;display:flex;flex-direction:column;min-height:0}
+#mailfeed .mrow{flex:1 1 0}
+#mailstats .brow{flex:1 1 0;margin-bottom:0}
+/* ---------- 弹层 ---------- */
+.popbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;display:flex;align-items:center;justify-content:center}
+.popcard{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:18px 20px;
+  width:min(460px,92vw);max-height:70vh;overflow:auto;box-shadow:var(--shadow2)}
+.pophead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14.5px;font-weight:600}
+.pophead .x{cursor:pointer;color:var(--dim);padding:2px 9px;border-radius:7px;font-weight:400}
+.pophead .x:hover{color:var(--text);background:var(--card2)}
+.popsec{font-size:12.5px;font-weight:600;margin:12px 0 7px;color:var(--dim)}
+.popsec.g{color:var(--green)} .popsec.r{color:var(--red)} .popsec.o{color:var(--orange)}
+.poprow{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);
+  border-radius:9px;margin-bottom:6px;font-size:13px}
+.poprow .pco{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.poprow a{color:var(--blue);text-decoration:underline;font-size:12px;flex:none}
+.poprow.none{color:var(--faint);border:none;justify-content:center}
+.mdmeta{font-size:12px;color:var(--faint);margin-bottom:8px;font-variant-numeric:tabular-nums}
+.mdsubj{font-size:13.5px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;
+  max-height:44vh;overflow:auto;margin:10px 0 14px;padding:10px 12px;
+  background:var(--card2);border:1px solid var(--border);border-radius:10px}
+/* ---------- 考试日历 ---------- */
+#calendar{min-height:340px}
+.calhead{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--dim);
+  padding:2px 4px 10px;gap:10px;flex-wrap:wrap}
+.calhead b{color:var(--text);font-size:14.5px}
+.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;--cc:#4dd0e1;--heatbase:#161b22}
+html[data-theme="light"] .calgrid{--heatbase:#ffffff}
+.calwd{text-align:center;font-size:11.5px;color:var(--faint);padding:2px 0 6px}
+.ctabs{display:flex;background:var(--card2);border-radius:10px;padding:3px;gap:2px}
+.ctab{padding:5px 14px;border-radius:8px;border:1px solid transparent;font-size:12.5px;color:var(--dim);
+  background:none;display:flex;align-items:center;gap:6px;font-family:inherit;cursor:pointer;transition:.15s}
+.ctab i{width:7px;height:7px;border-radius:50%;background:var(--cc);opacity:.5}
+.ctab:hover{color:var(--text)}
+.ctab:hover i{opacity:1}
+.ctab.on{background:var(--card);color:var(--text);font-weight:600;box-shadow:var(--shadow)}
+.ctab.on i{opacity:1;background:currentColor}
+.calgrid .gcell{min-width:0;aspect-ratio:1.15;border-radius:9px;padding:6px 7px;position:relative;
+  background:color-mix(in srgb,var(--card2) 50%,transparent)}
+.gcell.off{opacity:.3}
+.gcell.lv1{background:color-mix(in srgb,var(--cc) 16%,var(--heatbase))}
+.gcell.lv2{background:color-mix(in srgb,var(--cc) 32%,var(--heatbase))}
+.gcell.lv3{background:color-mix(in srgb,var(--cc) 50%,var(--heatbase))}
+.gcell.lv4{background:color-mix(in srgb,var(--cc) 64%,var(--heatbase))}
+.gcell.lv5{background:color-mix(in srgb,var(--cc) 84%,var(--heatbase))}
+.gcell.lv6{background:var(--cc)}
+.gcell.lv7{background:var(--cc);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45)}
+.gcell.lv8{background:var(--cc);box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),0 0 14px color-mix(in srgb,var(--cc) 55%,transparent)}
+.gcell.plan{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--cc) 42%,var(--heatbase))}
+.gcell.has{cursor:pointer}
+.gcell.has:hover{transform:scale(1.04);z-index:2;box-shadow:var(--shadow2)}
+.gnum{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+.gcell.today{outline:1.5px solid var(--blue);outline-offset:-1.5px}
+/* 格子文字：按真实底色分主题取值——暗色 lv1-4 底深用白字、lv5-8 底亮青用深字；
+   亮色 lv3+ 底亮用深字；计数数字两者通用 */
+html[data-theme="light"] .gcell.lv3 .gnum,html[data-theme="light"] .gcell.lv4 .gnum,
+html[data-theme="light"] .gcell.lv5 .gnum,html[data-theme="light"] .gcell.lv6 .gnum,
+html[data-theme="light"] .gcell.lv7 .gnum,html[data-theme="light"] .gcell.lv8 .gnum{color:#0d2833}
+html[data-theme="light"] .gcnt{color:#0d2833}
+html[data-theme="dark"] .gnum{color:#aab5c1}
+html[data-theme="dark"] .gcell.lv1 .gnum,html[data-theme="dark"] .gcell.lv2 .gnum,
+html[data-theme="dark"] .gcell.lv3 .gnum,html[data-theme="dark"] .gcell.lv4 .gnum{color:#fff}
+html[data-theme="dark"] .gcell.lv1 .gcnt,html[data-theme="dark"] .gcell.lv2 .gcnt,
+html[data-theme="dark"] .gcell.lv3 .gcnt,html[data-theme="dark"] .gcell.lv4 .gcnt{color:#fff}
+html[data-theme="dark"] .gcell.lv5 .gnum,html[data-theme="dark"] .gcell.lv6 .gnum,
+html[data-theme="dark"] .gcell.lv7 .gnum,html[data-theme="dark"] .gcell.lv8 .gnum,
+html[data-theme="dark"] .gcell.lv5 .gcnt,html[data-theme="dark"] .gcell.lv6 .gcnt,
+html[data-theme="dark"] .gcell.lv7 .gcnt,html[data-theme="dark"] .gcell.lv8 .gcnt{color:#0d2833}
+.gcell.today .gnum{font-weight:700}
+.gcnt{position:absolute;right:6px;bottom:4px;font-size:13px;font-weight:800;color:rgba(255,255,255,.95);
+  font-variant-numeric:tabular-nums}
+.calnum{font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums;line-height:1.2}
+.calchip{font-size:11px;line-height:1.35;border-radius:6px;padding:1px 5px;cursor:pointer;
+  border:1px solid var(--border2);color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:100%;min-width:0}
+.calchip:hover{filter:brightness(1.15)}
+.calchip.done{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,transparent);
+  text-decoration:line-through;opacity:.75}
+.calchip.miss{color:var(--red);border-color:color-mix(in srgb,var(--red) 50%,transparent)}
+.calchip.oth{border-style:dashed;opacity:.8}
+.caldiv{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--hairline);
+  margin:16px 0 12px;padding-top:12px;font-size:11px;color:var(--faint)}
+.caldiv .wnav{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--dim)}
+.caldiv .wnav span{white-space:nowrap}
+.wchart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;--cc:#f0b35e}
+.wcol{background:var(--card2);border-radius:12px;padding:10px 8px;min-height:132px;
+  display:flex;flex-direction:column;align-items:center}
+.wcol.today{outline:2px solid var(--blue);outline-offset:-2px;
+  background:color-mix(in srgb,var(--blue) 10%,var(--card2));
+  box-shadow:0 2px 14px color-mix(in srgb,var(--blue) 25%,transparent)}
+.wcol .wh{font-size:11px;color:var(--faint);margin-bottom:4px}
+.wcnt{font-size:13px;font-weight:700;color:var(--dim);font-variant-numeric:tabular-nums;min-height:17px}
+.wbarbox{width:100%;flex:1;display:flex;align-items:flex-end;justify-content:center;padding:0 6px}
+.wbar{width:26px;border-radius:7px 7px 3px 3px;overflow:hidden;display:flex;flex-direction:column-reverse;
+  transition:height .3s;min-height:4px}
+.wbar.none{background:color-mix(in srgb,var(--faint) 25%,transparent);height:3px}
+.wbar i{display:block;width:100%}
+.wbar i.g{background:var(--green)}
+.wbar i.r{background:var(--red)}
+.wbar i.o{background:var(--orange)}
+.wbar i.b{background:color-mix(in srgb,var(--blue) 80%,transparent)}
+.wn{text-align:center;font-size:11px;color:var(--dim);margin-top:6px;font-variant-numeric:tabular-nums}
+.wcol.today .wn{color:var(--blue);font-weight:700}
+.wchip:hover{filter:brightness(1.15)}
+.wchip b{display:block;color:var(--text);font-size:12px}
+.wchip.done{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,transparent)}
+.wchip.done b{text-decoration:line-through;color:var(--green)}
+.wchip.miss{color:var(--red);border-color:color-mix(in srgb,var(--red) 50%,transparent)}
+.wchip.miss b{color:var(--red)}
+.wchip.oth{border-style:dashed}
+/* ---------- 页脚 / 响应式 ---------- */
+footer{text-align:center;color:var(--faint);font-size:12px;padding:24px 28px 30px;max-width:min(1680px,100%);margin:0 auto}
+/* 定版：单机桌面工具（用户红线），无窄屏/移动端适配 */
+</style>
+</head>
+<body>
+
+<aside class="side" id="side">
+  <div class="brand">
+    <div class="logo" id="logo" aria-hidden="true"><img id="logoImg" src="/assets/qiuzhao-ruyi-autumn-offer-logo-v2-96.png" alt=""></div>
+    <div class="btext">
+      <h1 id="brandName">秋招中台</h1>
+    </div>
+    <button class="sidebtn" id="sidebtn" type="button" title="收起侧边栏" aria-label="收起 / 展开侧边栏">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+  </div>
+  <nav class="nav" id="nav">
+    <a class="navi" href="#tasks" data-page="tasks" title="近期任务">
+      <svg class="nico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5v-1A1.5 1.5 0 0 1 10.5 2h3A1.5 1.5 0 0 1 15 3.5v1"/><path d="M9 12l2 2 4-4"/></svg>
+      <span>近期任务</span><span class="nbadge" id="badge-tasks" hidden></span>
+    </a>
+    <a class="navi" href="#apps" data-page="apps" title="投递记录">
+      <svg class="nico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L10.5 13.5"/><path d="M21 3l-6.5 18-4-8-8-4L21 3z"/></svg>
+      <span>投递记录</span>
+    </a>
+    <a class="navi" href="#review" data-page="review" title="阶段复盘">
+      <svg class="nico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-8"/><path d="M10 20V4"/><path d="M16 20v-5"/><path d="M2 20h20"/></svg>
+      <span>阶段复盘</span>
+    </a>
+    <a class="navi" href="#mail" data-page="mail" title="邮件动态">
+      <svg class="nico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7.5l7.2 4.9a1.5 1.5 0 0 0 1.6 0L20 7.5"/></svg>
+      <span>邮件动态</span>
+    </a>
+    <a class="navi" href="#settings" data-page="settings" title="设置">
+      <svg class="nico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.08a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.08a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>设置</span>
+    </a>
+  </nav>
+</aside>
+
+<div id="errbar"></div>
+<div id="setupbar">
+  <b>未绑定邮箱。</b>
+  <button class="btn sm" id="setup-bind" type="button">① 绑定邮箱（全自动收件）</button>
+  <button class="btn sm" id="setup-skip" type="button">② 先手动用（免邮箱）</button>
+  <span style="font-size:12px">手动模式同样可记录投递/考试，以后随时在「设置」页绑定邮箱</span>
+</div>
+
+<main>
+  <div class="pagetools" id="pagetools">
+    <div class="ptin">
+    <div class="ptitle">
+      <h1 id="pt-h">近期任务</h1>
+      <p id="pt-sub">要处理的事和未来几天的安排</p>
+    </div>
+    <div class="ptools" id="ptools">
+      <span class="pstatus">
+        <span id="dot" class="dot"></span>
+        <span id="updatetime">连接中…</span>
+        <span id="stale" class="stale" hidden>数据陈旧</span>
+      </span>
+      <label class="switch" title="每 30 秒自动拉取 /api/data">
+        <input type="checkbox" id="auto" checked>
+        <span class="track"></span><span>自动刷新</span>
+      </label>
+      <button class="btn iconbtn" id="refresh" type="button" title="立即刷新（开启自动刷新时每 30 秒一次）" aria-label="刷新"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg></span></button>
+      <button class="btn sm" id="syncnow" type="button" title="立即拉取一次邮箱（平时每 2 小时自动收一次；首次绑完邮箱点这里马上看到结果）">拉邮件</button>
+      <button class="btn sm" id="zout" type="button" title="字体缩小">A-</button>
+      <button class="btn sm" id="zin" type="button" title="字体放大">A+</button>
+      <button class="btn iconbtn" id="theme" type="button" title="切换深浅主题（自动记忆）" aria-label="切换主题">
+        <span class="ico" id="themeico">
+          <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+        </span>
+      </button>
+    </div>
+    </div><!-- /.ptin -->
+  </div>
+
+  <section class="page" id="page-tasks" data-page="tasks">
+    <div id="queuebar"></div>
+    <div id="duetoday"></div>
+    <div id="overdue"></div>
+    <div id="waitresult"></div>
+
+    <div class="grid g-a">
+    <section class="panel">
+      <div class="ph">
+        <h2>近期安排</h2>
+        <div class="ranges" id="ranges">
+          <button class="rbtn" type="button" data-r="3" title="今天起 3 天">默认3天</button>
+          <button class="rbtn" type="button" data-r="week" title="本周一 ~ 周日">本周</button>
+          <button class="rbtn" type="button" data-r="7" title="未来 7 天">未来7天</button>
+          <button class="rbtn" type="button" data-r="custom" title="自定义起止日期">自定义</button>
+          <span class="rdates" id="rdates" hidden>
+            <span>起</span><input type="date" id="rstart"><span>止</span><input type="date" id="rend">
+          </span>
+        </div>
+      </div>
+      <div class="body" id="schedule"></div>
+    </section>
+    <section class="panel">
+      <div class="ph">
+        <h2>考试日历</h2>
+        <div class="ctabs" id="ctabs">
+          <button class="ctab on" data-ct="测评" type="button"><i class="td" style="background:var(--cyan)"></i>测评</button>
+          <button class="ctab" data-ct="笔试" type="button"><i class="td" style="background:var(--orange)"></i>笔试</button>
+          <button class="ctab" data-ct="面试" type="button"><i class="td" style="background:var(--purple)"></i>面试</button>
+        </div>
+        <div class="ranges" id="calbar">
+          <button class="rbtn" type="button" id="calPrev" title="上一页">‹</button>
+          <button class="rbtn" type="button" id="calToday" title="回到今天">今天</button>
+          <button class="rbtn" type="button" id="calNext" title="下一页">›</button>
+          <button class="rbtn" type="button" data-cm="month" title="月视图">月</button>
+          <button class="rbtn" type="button" data-cm="week" title="周视图">周</button>
+        </div>
+      </div>
+      <div class="body" id="calendar"></div>
+    </section>
+    </div>
+  </section>
+
+  <section class="page" id="page-apps" data-page="apps" hidden>
+  <section class="panel">
+    <div class="ph">
+      <h2>记录列表</h2>
+      <div class="tblbar">
+        <input class="tsearch" id="recsearch" type="search" placeholder="搜索公司 / 岗位 / 行业…">
+        <select id="rec-status" class="stsel" title="按状态筛选"></select>
+        <select id="rec-industry" class="stsel" title="按行业筛选"></select>
+        <select id="rec-sort" class="stsel" title="排序方式"></select>
+        <button class="btn sm" id="addbtn" type="button">＋ 新增投递</button>
+        <span class="hint" id="reccount"></span>
+      </div>
+    </div>
+    <div id="afill">
+      <div class="afrow">
+        <label class="af">公司名称 *<input id="af-co" placeholder="如：字节跳动"></label>
+        <label class="af">岗位名称<input id="af-pos" placeholder="如：后端开发（一个岗位=一条志愿）"></label>
+        <label class="af">行业<input id="af-ind" placeholder="如：互联网"></label>
+        <label class="af">网申链接<input id="af-url" placeholder="https://…"></label>
+        <label class="af">投递日期<input id="af-date" type="date"></label>
+        <label class="af">投递状态<select id="af-st"></select></label>
+        <button class="btn sm" id="afsave" type="button" style="padding:7px 16px">保存</button>
+        <button class="btn sm" id="afcancel" type="button" style="padding:7px 16px">取消</button>
+      </div>
+      <span class="hint" style="font-size:11px;color:var(--faint);display:block;margin-top:8px">同一「公司+岗位」只能建一条志愿；保存后下次同步自动生成公司笔记</span>
+    </div>
+    <div class="tblwrap" id="rectable"></div>
+    <div class="pager" id="recpager"></div>
+  </section>
+
+  <section class="panel">
+    <div class="ph"><h2>卡住提醒</h2><span class="hint">投递 &gt;7 天无进展</span></div>
+    <div class="body" id="stuck"></div>
+  </section>
+  </section>
+
+  <section class="page" id="page-review" data-page="review" hidden>
+    <div class="pagerow">
+      <div class="ranges" id="rranges">
+        <button class="rbtn" type="button" data-rr="week" title="按投递日期 · 本周一起">本周</button>
+        <button class="rbtn" type="button" data-rr="month" title="按投递日期 · 当月 1 日起">本月</button>
+        <button class="rbtn" type="button" data-rr="all" title="不限时间范围">全部</button>
+      </div>
+    </div>
+
+    <p class="statnote">统计卡为当前快照 · 漏斗/行业/终止受上方范围控制</p>
+    <section class="stats" id="stats"></section>
+
+    <div class="grid g-2">
+      <section class="panel">
+        <div class="ph"><h2>近 7 天投递趋势</h2><span class="hint">按投递日期</span></div>
+        <div class="body" id="trend"></div>
+      </section>
+      <section class="panel">
+        <div class="ph"><h2>漏斗历史</h2><span class="hint">每日状态快照 · 在途人数趋势</span></div>
+        <div class="body" id="fhistory"></div>
+      </section>
+    </div>
+
+    <div class="grid g-dist">
+      <section class="panel">
+        <div class="ph"><h2>投递漏斗</h2><span class="hint" id="funnelhint">范围：全部 · 到达口径 · 含终止归位</span></div>
+        <div class="body" id="funnel"></div>
+      </section>
+      <section class="panel">
+        <div class="ph"><h2>行业分布</h2><span class="hint" id="indhint">Top 6 · 范围：全部</span></div>
+        <div class="body" id="industry"></div>
+      </section>
+      <section class="panel">
+        <div class="ph"><h2>终止原因分布</h2><span class="hint" id="termhint">按终止原因</span></div>
+        <div class="body" id="term"></div>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <div class="ph"><h2>流程耗时</h2><span class="hint">投递 → 首封回音 · 在途排行</span></div>
+        <div class="body" id="response"></div>
+      </section>
+    </div>
+  </section>
+
+  <section class="page" id="page-mail" data-page="mail" hidden>
+    <div class="grid g-2">
+      <section class="panel">
+        <div class="ph"><h2>最近邮件</h2><span class="hint"><b id="mailfresh"></b> · 最近 10 封 · <a href="#" id="mailweb" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">打开邮箱网页版 ↗</a></span></div>
+        <div class="body" id="mailfeed"></div>
+      </section>
+      <section class="panel">
+        <div class="ph"><h2>邮件存档</h2><span class="hint" id="mailstats-hint">按公司</span></div>
+        <div class="body" id="mailstats"></div>
+      </section>
+    </div>
+  </section>
+
+  <section class="page" id="page-settings" data-page="settings" hidden>
+    <div class="grid g-2">
+      <section class="panel">
+        <div class="ph"><h2>邮箱凭据</h2><span class="hint">IMAP 收件配置 · 自动抓取校招邮件用</span></div>
+        <div class="body">
+          <div class="afrow">
+            <label class="af">IMAP 服务器<input id="se-host" placeholder="imap.163.com" style="min-width:200px"></label>
+            <label class="af">邮箱账号<input id="se-user" placeholder="yourname@163.com" style="min-width:220px"></label>
+            <label class="af">授权码 / 密码<input id="se-pwd" type="password" placeholder="尚未配置" style="min-width:180px"></label>
+          </div>
+          <div class="afrow" style="margin-top:12px">
+            <button class="btn sm" id="se-save" type="button">保存邮箱配置</button>
+            <button class="btn sm" id="se-test" type="button">保存并测试连接</button>
+            <span class="hint" id="se-st"></span>
+          </div>
+          <p class="hint" style="margin-top:12px;line-height:1.8">常见 IMAP 服务器：<b>163</b> imap.163.com · <b>QQ</b> imap.qq.com · <b>腾讯企业邮</b> imap.exmail.qq.com · <b>阿里云</b> imap.aliyun.com · <b>Gmail</b> imap.gmail.com（需网络可达）。<br>均需使用「授权码/应用专用密码」而非登录密码：163/QQ 在邮箱网页版 → 设置 → POP3/SMTP/IMAP → 开启 IMAP 并生成授权码。<br>Outlook 个人版已禁用基础认证，暂不支持。凭据保存在本目录 <b>凭据.json</b>（含隐私，请勿外传或上传网盘）。</p>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="ph"><h2>运行参数</h2><span class="hint">config.json · 保存后下次同步生效</span></div>
+        <div class="body">
+          <div class="afrow">
+            <label class="af">看板端口<input id="se-port" type="number" min="1024" max="65535" style="min-width:120px"></label>
+            <label class="af">笔记库目录<input id="se-vault" placeholder="留空 = 自动（脚本上两级）" style="min-width:230px"></label>
+            <label class="af">备份目录<input id="se-bk" placeholder="留空 = 本目录 backups/" style="min-width:200px"></label>
+          </div>
+          <div class="afrow" style="margin-top:12px;align-items:flex-start">
+            <label class="af" style="flex:1;min-width:220px">公司别名（每行：称呼: 主表公司名）
+              <textarea id="se-alias" rows="4" placeholder="简称: 主表公司名&#10;如: 字节: 字节跳动" style="width:100%"></textarea></label>
+            <label class="af" style="flex:1;min-width:220px">抓取关键词（每行一个，留空用内置默认）
+              <textarea id="se-kw" rows="4" placeholder="笔试&#10;面试&#10;测评" style="width:100%"></textarea></label>
+          </div>
+          <div class="afrow" style="margin-top:10px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dim);cursor:pointer">
+              <input type="checkbox" id="se-auto" style="min-width:auto;width:auto">
+              未匹配邮件自动创建志愿（识别出公司名时自动建档，识别不出才进待确认队列）</label>
+          </div>
+          <div class="afrow" style="margin-top:12px">
+            <button class="btn sm" id="se-savecfg" type="button">保存运行参数</button>
+            <span class="hint" id="se-cst"></span>
+          </div>
+          <p class="hint" style="margin-top:12px;line-height:1.8">别名用于把邮件里的简称挂到正确公司（如「字节」→「字节跳动」）；关键词决定哪些邮件参与自动解析，改完下次同步生效。</p>
+        </div>
+      </section>
+    </div>
+    <section class="panel" style="margin-top:14px">
+      <div class="ph"><h2>外观</h2><span class="hint">换上你自己的 logo 和名字 · 纯本机显示</span></div>
+      <div class="body">
+        <div class="afrow" style="align-items:center">
+          <img id="br-preview" src="/assets/qiuzhao-ruyi-autumn-offer-logo-v2-96.png" alt="当前 logo"
+               style="width:48px;height:48px;border-radius:12px;object-fit:contain;background:rgba(127,127,127,.12);flex:none">
+          <div class="af" style="flex:1;min-width:220px">站点名称（留空恢复「秋招中台」）
+            <input id="br-name" maxlength="30" placeholder="秋招中台" style="min-width:200px"></div>
+        </div>
+        <div class="afrow" style="margin-top:12px">
+          <button class="btn sm" id="br-pick" type="button">上传 logo…</button>
+          <button class="btn sm" id="br-save" type="button">保存外观</button>
+          <button class="btn sm" id="br-reset" type="button">恢复默认</button>
+          <input id="br-file" type="file" accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+          <span class="hint" id="br-st"></span>
+        </div>
+        <p class="hint" style="margin-top:12px;line-height:1.8">支持 png / jpg / webp / svg，最大 2MB；文件存本目录 <b>branding/</b>（不进数据库、不参与同步）。侧边栏、浏览器标签页与预览同步更换；「恢复默认」同时还原名称与 logo。</p>
+      </div>
+    </section>
+    <section class="panel" style="margin-top:14px">
+      <div class="ph"><h2>运行环境</h2><span class="hint">只读信息</span></div>
+      <div class="body" id="se-env"></div>
+    </section>
+  </section>
+</main>
+
+<footer><a href="说明书.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">📖 使用说明书</a> · <span id="brandFoot">秋招中台</span> · 数据本地存储 · 邮件每 2 小时自动同步</footer>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ================= file:// 误开防御（2026-10-02） =================
+   「只会双击」的用户可能直接双击本 HTML 文件——file:// 下所有接口必然失败，
+   与其渲染一屏"暂无数据"，不如第一步就用人话指路。下方内容为纯静态文案，无注入面。 */
+if (location.protocol === "file:") {
+  document.body.innerHTML = '<div style="max-width:640px;margin:14vh auto 0;padding:30px 34px;'
+    + 'border-radius:16px;font-family:system-ui,-apple-system,sans-serif;line-height:2;font-size:15px;'
+    + 'background:#1c2230;color:#e8ecf4">'
+    + '<h2 style="margin:0 0 12px">请不要直接双击打开本文件</h2>'
+    + '<p style="margin:0 0 10px">看板需要「启动中台」脚本在后台提供服务，直接双击 HTML 是拿不到数据的。</p>'
+    + '<p style="margin:0">正确做法：双击文件夹里的 <b>启动中台.bat</b>（macOS/Linux 在终端运行 '
+    + '<code>bash 启动中台.sh</code>）→ 浏览器会自动打开 <code>http://127.0.0.1:8790</code>。</p></div>';
+  throw new Error("file:// 环境已拦截，请用启动脚本打开");
+}
+/* ================= 工具 ================= */
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2, "0");
+const WD = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const pd = s => { if (!s) return null; const d = new Date(s); return isNaN(d) ? null : d; };
+const fD = d => pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+const fDT = d => fD(d) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+const hm = d => pad(d.getHours()) + ":" + pad(d.getMinutes());
+const day0 = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const dayDiff = (a, b) => Math.round((day0(a) - day0(b)) / 864e5);
+/* 所有动态内容只用 textContent（邮件主题是不可信输入，天然免疫 XSS） */
+const grow = (bar, pct) => { bar.style.width = "0%"; requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = pct + "%"; })); };
+
+const STATUS = ["未投递", "简历评估", "测评中", "笔试中", "面试中", "已通过", "终止"];
+const SCOL = { "未投递": "var(--faint)", "简历评估": "var(--blue)", "测评中": "var(--cyan)", "笔试中": "var(--orange)", "面试中": "var(--purple)", "已通过": "var(--green)", "终止": "var(--red)" };
+const RANK = { "未投递": 0, "简历评估": 1, "测评中": 2, "笔试中": 3, "面试中": 4, "已通过": 5 };
+const BB = { "笔试": "bw", "面试": "bi", "测评": "ba", "其他事项": "bo" };
+/* 条形图分类配色：行业=冷色系、终止原因=暖红系（两面板区分类别，也互相区分） */
+const PAL_COOL = ["linear-gradient(90deg,#3b82f6,#60a5fa)", "linear-gradient(90deg,#06b6d4,#22d3ee)",
+  "linear-gradient(90deg,#8b5cf6,#a78bfa)", "linear-gradient(90deg,#10b981,#34d399)",
+  "linear-gradient(90deg,#6366f1,#818cf8)", "linear-gradient(90deg,#0ea5e9,#38bdf8)",
+  "linear-gradient(90deg,#14b8a6,#2dd4bf)", "linear-gradient(90deg,#64748b,#94a3b8)"];
+const PAL_WARM = ["linear-gradient(90deg,#ef4444,#f87171)", "linear-gradient(90deg,#f97316,#fb923c)",
+  "linear-gradient(90deg,#e11d48,#fb7185)", "linear-gradient(90deg,#d97706,#fbbf24)",
+  "linear-gradient(90deg,#dc2626,#f87171)", "linear-gradient(90deg,#ea580c,#fb923c)",
+  "linear-gradient(90deg,#b91c1c,#ef4444)", "linear-gradient(90deg,#9f1239,#fb7185)"];
+const LC = { "笔试": "var(--orange)", "测评": "var(--cyan)", "面试": "var(--purple)" };
+const TKC = { "笔试": "c-bw", "面试": "c-bi", "测评": "c-ba", "其他事项": "c-bo" };
+
+/* 有效完成（考试安排行 Exams）= 完成=true，或状态推断：
+   笔试→{面试中,已通过}；测评→{面试中,已通过}（2026-09-19 收窄：笔试中≠测评已完成，存在测评+笔试合考/跳过测评的公司，案例：安克）；面试→{已通过} */
+const EINFER = { "笔试": ["面试中", "已通过"], "测评": ["面试中", "已通过"], "面试": ["已通过"] };
+function examDone(x) {
+  if (x["完成"] === true) return true;
+  return (EINFER[x["考试类型"]] || []).includes(x["投递状态"]);
+}
+const examWaived = x => x["放弃"] === true;   // 已放弃：手动声明不参加（终态，可撤销）
+
+let data = null;   // 最近一次成功数据（数据源异常时保留展示）
+let timer = null;
+
+/* ================= 主题 ================= */
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  const ico = $("#themeico"), s = ico.querySelector(".i-sun"), m = ico.querySelector(".i-moon");
+  /* 用 style.display 控显隐：hidden 属性对 svg 不生效，曾致日月并显（2026-09-26 修） */
+  if (s) s.style.display = t === "light" ? "" : "none";
+  if (m) m.style.display = t === "light" ? "none" : "";
+  try { localStorage.setItem("kb.theme", t); } catch (e) {}
+}
+const _applyTheme = applyTheme;
+applyTheme = t => { _applyTheme(t); if (typeof data !== "undefined" && data) renderCalendar(); };
+$("#theme").addEventListener("click", () =>
+  applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
+
+/* ================= 页面路由（hash，单文件四页） =================
+   大标题与副标题注入顶栏（.ptitle），页面内不再重复显示（2026-09-26 定版） */
+const PAGES = {
+  tasks: ["近期任务", "要处理的事和未来几天的安排"],
+  apps: ["投递记录", "每份投递的进度与考试安排"],
+  review: ["阶段复盘", "漏斗、转化和趋势（参考用）"],
+  mail: ["邮件动态", "管道抓取的最新邮件与存档情况"],
+  settings: ["设置", "邮箱凭据与运行参数 · 网页里改，不用碰命令行"],
+};
+function showPage(name) {
+  if (!PAGES[name]) name = "tasks";
+  for (const k of Object.keys(PAGES)) $("#page-" + k).hidden = k !== name;
+  for (const a of document.querySelectorAll("#nav .navi")) a.classList.toggle("on", a.dataset.page === name);
+  document.title = PAGES[name][0] + " · 秋招中台";
+  $("#pt-h").textContent = PAGES[name][0];
+  $("#pt-sub").textContent = PAGES[name][1];
+  if (name === "settings") loadSettings();
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", () => showPage(location.hash.slice(1)));
+showPage(location.hash.slice(1));
+
+/* ================= 侧边栏收拢 / 展开（记忆） ================= */
+const SIDEKEY = "kb.side";
+function setSide(collapsed) {
+  document.body.classList.toggle("side-collapsed", collapsed);
+  $("#side").classList.toggle("collapsed", collapsed);
+  $("#sidebtn").title = collapsed ? "展开侧边栏" : "收起侧边栏";
+  $("#logo").title = collapsed ? "点击展开侧边栏" : "";   // 收拢态：logo 即展开入口
+  try { localStorage.setItem(SIDEKEY, collapsed ? "1" : "0"); } catch (e) {}
+}
+$("#sidebtn").addEventListener("click", () => setSide(!document.body.classList.contains("side-collapsed")));
+$("#logo").addEventListener("click", () => { if (document.body.classList.contains("side-collapsed")) setSide(false); });
+try { setSide(localStorage.getItem(SIDEKEY) === "1"); } catch (e) {}
+
+/* ================= 提示条 ================= */
+let toastT = null;
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove("show"), 3200);
+}
+
+/* ================= 拉取与状态 ================= */
+function dotState(ok) { $("#dot").className = "dot " + (ok ? "ok" : "err"); }
+/* 常见错误翻成人话并给出下一步（2026-10-02：原样直出 "Failed to fetch" 小白无从下手） */
+function friendlyNetError(msg) {
+  const m = String(msg || "");
+  if (/Failed to fetch|NetworkError|Load failed|网络/i.test(m))
+    return "连不上中台服务——多半是「启动中台」窗口被关了。请重新双击 启动中台.bat，然后点右侧「重试」";
+  if (/HTTP 500|Internal Server Error/i.test(m)) return "中台服务内部错误（详情见启动时的黑色窗口）";
+  return m;
+}
+function showErr(msg) {
+  const box = $("#errbar");
+  box.replaceChildren();
+  box.append(el("span", null, "⚠ " + friendlyNetError(msg) + (data ? " —— 正在展示上次成功数据" : " —— 暂无数据")));
+  const rb = el("button", "btn sm", "重试");
+  rb.type = "button";
+  rb.style.marginLeft = "10px";
+  rb.addEventListener("click", () => { rb.disabled = true; rb.textContent = "重试中…"; load(); });
+  box.append(rb);
+  box.classList.add("show");
+}
+function hideErr() { $("#errbar").classList.remove("show"); }
+
+async function load() {
+  const btn = $("#refresh");
+  btn.classList.add("loading");
+  let ok = false;
+  try {
+    const r = await fetch("api/data", { cache: "no-store" });
+    const j = await r.json();
+    if (j && j.ok) {
+      data = j;
+      $("#stale").hidden = true;
+      hideErr(); dotState(true);
+      render();
+      ok = true;
+    } else {
+      $("#stale").hidden = !data;   // 有旧数据 → 标“数据陈旧”并继续展示
+      dotState(false);
+      showErr((j && j.error) || "HTTP " + r.status);
+      if (!data) renderEmpty();
+    }
+  } catch (e) {
+    $("#stale").hidden = !data;
+    dotState(false);
+    showErr(e.message || String(e));
+    if (!data) renderEmpty();
+  }
+  loadQueue();   // 待人工确认条（独立接口，异常不影响主看板）
+  /* 失败时不再把“更新于”刷成现在（2026-10-02 修：旧数据+“更新于刚刚”会让人误以为数据是新的） */
+  $("#updatetime").textContent = (ok ? "更新于 " : "同步失败于 ") + fDT(new Date());
+  btn.classList.remove("loading");
+}
+
+/* ================= 完成勾选 → /api/toggle（乐观更新） ================= */
+/* 乐观更新必须改「当前 data 里的行」：闭包里的旧引用在后台刷新后会失联（2026-09-21 修复） */
+function markExamDone(rowRef, val) {
+  const cur = (data["考试"] || []).find(y => y.id === rowRef.id) || rowRef;
+  cur["完成"] = val;
+  cur["完成时间"] = val ? dtLocal(new Date()) + ":00" : null;   // 乐观写入：完成当天保持可见
+  if (val) cur["放弃"] = false;                                 // 完成与放弃互斥
+  return cur;
+}
+async function apiToggleExam(id, val) {
+  const r = await fetch("api/toggle", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ "考试": id, "值": val }),
+  });
+  let j = null;
+  try { j = await r.json(); } catch (e) {}
+  if (!(j && j.ok)) throw new Error((j && j.error) || "HTTP " + r.status);
+}
+
+/* ================= 待人工确认队列（/api/queue + /api/queue_retry） ================= */
+let queueItems = [];
+async function loadQueue() {
+  try {
+    const r = await fetch("api/queue", { cache: "no-store" });
+    const j = await r.json();
+    queueItems = (j && j.ok) ? (j.items || []) : [];
+  } catch (e) { queueItems = []; }   // 队列接口异常不影响主看板
+  renderQueue();
+}
+function renderQueue() {
+  const box = $("#queuebar");
+  box.replaceChildren();
+  box.classList.toggle("show", queueItems.length > 0);
+  /* 角标统一挂「近期任务」（2026-10-02 修）：原挂「邮件动态」，但待确认横幅只在任务页，
+     点着数字进去看不到任何待办；现在由任务页徽章一并表达（逾期 > 今日截止 > 待确认） */
+  renderTasksBadge();
+  if (!queueItems.length) return;
+  box.append(el("div", "at", "待人工确认 · " + queueItems.length + " 条（邮件未能自动匹配，建好记录后一键重试）"));
+  const its = el("div", "items");
+  for (const q of queueItems) {
+    const subj = q["主题"] || "(无主题)";
+    const c = el("span", "qchip");
+    c.title = subj + " ｜ 发件人：" + (q["发件人"] || "—") + " ｜ 原因：" + (q["原因"] || "—") +
+      " ｜ 收信：" + (q["收信时间"] || "—") + " ｜ 点击查看正文与链接";
+    c.style.cursor = "pointer";
+    c.append(el("b", null, subj.length > 24 ? subj.slice(0, 24) + "…" : subj));
+    const frm = q["发件人"] || "";
+    if (frm.includes("@")) c.append(el("span", "qfrom", " · " + frm.split("@").pop()));
+    c.append(document.createTextNode(" · " + (q["收信时间"] || "").slice(5, 10)));
+    /* 点条目（非按钮区）→ 详情浮层：发件人/正文预览/链接，看完再决定重试或忽略 */
+    c.addEventListener("click", ev => { if (!ev.target.closest("button")) showQueueDetail(q); });
+    const btn = el("button", "qretry", "已建记录，重试");
+    btn.type = "button";
+    btn.addEventListener("click", () => retryQueue(q, btn));
+    const crt = el("button", "qretry", "新建");
+    crt.type = "button"; crt.title = "以此邮件创建一条新志愿（可在详情里确认/修改公司名）";
+    crt.addEventListener("click", () => showQueueDetail(q, true));
+    const dgb = el("button", "qretry qdrop", "忽略");
+    dgb.type = "button"; dgb.title = "不再提醒这封邮件（移出队列，不建记录）";
+    dgb.addEventListener("click", () => dropQueue(q, dgb));
+    c.append(btn, crt, dgb);
+    its.append(c);
+  }
+  box.append(its);
+}
+
+/* 待确认邮件详情浮层：显式请求 /api/queue_detail 才拿正文与链接（列表接口仍不含正文） */
+async function showQueueDetail(q, focusCreate) {
+  closeDayPopup();
+  const ov = el("div", "popbg");
+  const card = el("div", "popcard");
+  ov.append(card);
+  document.body.append(ov);
+  ov.addEventListener("click", e => { if (e.target === ov) closeDayPopup(); });
+  let j = null;
+  try {
+    const r = await fetch("api/queue_detail?uid=" + encodeURIComponent(q.uid), { cache: "no-store" });
+    j = await r.json();
+  } catch (e) {}
+  card.replaceChildren();
+  const head = el("div", "pophead");
+  head.append(el("b", null, "待确认邮件 · 详情"));
+  const xc = el("span", "x", "✕"); xc.onclick = closeDayPopup;
+  head.append(xc);
+  card.append(head);
+  if (!(j && j.ok)) {
+    card.append(el("div", "mdmeta", "详情获取失败：" + ((j && j.error) || "网络异常，请重试")));
+    return;
+  }
+  const it = j.item || {};
+  const d = pd(it["收信时间"]);
+  card.append(el("div", "mdmeta",
+    (d ? fDT(d) + " 收信 · " : "") + "原因：" + (it["原因"] || "—") + " · 入队：" + (it["入队"] || "—").slice(0, 10)));
+  const fr = el("div", "mdsubj", "发件人：" + (it["发件人"] || "—"));
+  fr.style.color = "var(--blue)";
+  card.append(fr);
+  const sj = el("div", "mdsubj", it["主题"] || "(无主题)");
+  sj.style.fontWeight = "700";
+  card.append(sj);
+  const links = it["链接"] || [];
+  if (links.length) {
+    const lt = el("div", "mdmeta", "邮件里的链接（点击新窗口打开）：");
+    lt.style.margin = "10px 0 2px";
+    card.append(lt);
+    for (const u of links) {
+      const a = document.createElement("a");
+      a.href = u; a.target = "_blank"; a.rel = "noopener noreferrer";
+      a.textContent = u.length > 76 ? u.slice(0, 76) + "…" : u;
+      a.className = "qlink";
+      card.append(a);
+    }
+  }
+  const bl = el("div", "mdmeta", "正文预览" + (String(it["正文预览"] || "").length >= 2000 ? "（前 2000 字）" : "："));
+  bl.style.margin = "10px 0 2px";
+  card.append(bl, el("div", "mdpre", it["正文预览"] || "（无正文）"));
+  /* 一键新建志愿：公司名预填系统建议值，可编辑后确认 */
+  const crow = el("div", "afrow");
+  crow.style.marginTop = "12px";
+  const cname = el("input"); cname.value = it["建议公司名"] || ""; cname.placeholder = "公司名称（按邮件称呼填写）";
+  cname.style.minWidth = "240px";
+  const clab = el("label", "af", "以这封邮件新建志愿 →");
+  clab.append(cname);
+  crow.append(clab);
+  const cb = el("button", "btn sm", "创建并入库"); cb.type = "button";
+  cb.addEventListener("click", async () => {
+    const nm = cname.value.trim();
+    if (!nm) { toast("请先填写公司名称"); cname.focus(); return; }
+    cb.disabled = true;
+    try {
+      const r2 = await apiPost("api/queue_create", { uid: q.uid, "公司名称": nm });
+      toast("已创建志愿「" + (r2["公司名称"] || nm) + "」并入库");
+      closeDayPopup(); load();
+    } catch (e) {
+      toast("创建失败：" + (e.message || e));
+      cb.disabled = false;
+    }
+  });
+  crow.append(cb);
+  card.append(crow);
+  if (focusCreate) setTimeout(() => { cname.focus(); cname.select(); }, 60);
+  const row = el("div", "afrow");
+  row.style.marginTop = "12px";
+  const rb = el("button", "btn sm", "已建记录，重试"); rb.type = "button";
+  rb.addEventListener("click", () => { closeDayPopup(); retryQueue(q, rb); });
+  const db = el("button", "btn sm danger", "忽略此邮件"); db.type = "button";
+  db.addEventListener("click", () => { closeDayPopup(); dropQueue(q, db); });
+  const hint = el("span", "hint", "重试前请先到「投递记录」确认该公司存在（公司名要与邮件称呼一致）");
+  row.append(rb, db, hint);
+  card.append(row);
+}
+async function retryQueue(q, btn) {
+  btn.disabled = true; btn.textContent = "重试中…";
+  try {
+    const r = await fetch("api/queue_retry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: q.uid }),
+    });
+    const j = await r.json();
+    if (j && j.ok) { toast("已重试入库"); load(); }
+    else {
+      toast("重试失败：" + ((j && j.error) || "HTTP " + r.status));
+      btn.disabled = false; btn.textContent = "已建记录，重试";
+    }
+  } catch (e) {
+    toast("重试失败：" + (e.message || e));
+    btn.disabled = false; btn.textContent = "已建记录，重试";
+  }
+}
+async function dropQueue(q, btn) {
+  /* 二次确认（2026-10-02）：忽略=永久出队且不再提醒，是全站唯一没有确认的破坏性操作；
+     与「重试/新建」并排同款按钮，误点一次就丢一封真实校招邮件 */
+  const subj = String(q["主题"] || "(无主题)");
+  if (!confirm("忽略后这封邮件不会再提醒，也不会建记录：\n「" + (subj.length > 40 ? subj.slice(0, 40) + "…" : subj) + "」\n\n确定忽略？（广告/无关邮件才点这个）")) return;
+  btn.disabled = true; btn.textContent = "…";
+  try {
+    const r = await fetch("api/queue_drop", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: q.uid }),
+    });
+    const j = await r.json();
+    if (j && j.ok) {
+      toast("已忽略，不再提醒");
+      queueItems = queueItems.filter(x => x !== q); renderQueue();
+    } else {
+      toast("忽略失败：" + ((j && j.error) || "HTTP " + r.status));
+      btn.disabled = false; btn.textContent = "忽略";
+    }
+  } catch (e) {
+    toast("忽略失败：" + (e.message || e));
+    btn.disabled = false; btn.textContent = "忽略";
+  }
+}
+
+/* ================= 设置页（邮箱凭据 + 运行参数，网页可视化编辑） ================= */
+function setHint(id, msg, color) {
+  const n = $(id);
+  n.textContent = msg;
+  n.style.color = color || "var(--faint)";
+}
+function setupBadge(show) { $("#setupbar").classList.toggle("show", !!show); }
+{ /* 首启双选项：绑定邮箱 / 免邮箱手动模式（选择后记忆，不再打扰） */
+  $("#setup-bind").addEventListener("click", () => { location.hash = "#settings"; showPage("settings"); });
+  $("#setup-skip").addEventListener("click", () => {
+    try { localStorage.setItem("kb.setupskip", "1"); } catch (e) {}
+    setupBadge(false); toast("已切换为手动模式：直接在「投递记录」页新增志愿即可");
+  });
+}
+function renderEnv(j) {
+  const box = $("#se-env"); box.replaceChildren();
+  const p = j.路径 || {};
+  const rows = [
+    ["邮箱状态", j.已配置 ? "已配置（" + (j.mail_user || "—") + " · " + (j.mail_host || "—") + "）" : "未配置"],
+    ["数据库", p["数据库"]],
+    ["脚本目录", p["脚本目录"]],
+    ["同步链路", "mail.py 收邮件 → 写 SQLite → sync.py 刷新笔记 → 滚动备份 → 看板看护（计划任务每 2 小时）"],
+    ["安全边界", "看板只绑定 127.0.0.1（仅本机）；凭据.json / 中台.sqlite / 待确认队列.json 含隐私，请勿外传"],
+  ];
+  for (const [k, v] of rows) {
+    const line = el("div");
+    line.style.margin = "2px 0";
+    line.append(el("b", null, k + "："));
+    const s = el("span", null, v == null || v === "" ? "—" : String(v));
+    s.style.color = "var(--dim)";
+    line.append(s);
+    box.append(line);
+  }
+}
+async function loadSettings() {
+  try {
+    const r = await fetch("api/settings", { cache: "no-store" });
+    const j = await r.json();
+    if (!(j && j.ok)) { setHint("#se-st", "读取失败：" + ((j && j.error) || "HTTP " + r.status), "var(--red)"); return; }
+    /* 邮箱网页版入口随 IMAP 服务器联动（不写死任何服务商，2026-10-01） */
+    const WEBMAP = { "imap.163.com": "https://mail.163.com/", "imap.qq.com": "https://mail.qq.com/",
+                     "imap.exmail.qq.com": "https://exmail.qq.com/", "imap.gmail.com": "https://mail.google.com/",
+                     "outlook.office365.com": "https://outlook.office.com/", "imap.aliyun.com": "https://mail.aliyun.com/" };
+    const mw = $("#mailweb");
+    if (mw) {
+      const host = String(j.mail_host || "").toLowerCase();
+      if (WEBMAP[host]) { mw.href = WEBMAP[host]; mw.hidden = false; }
+      else { mw.hidden = true; }
+    }
+    $("#se-host").value = j.mail_host || "";
+    $("#se-user").value = j.mail_user || "";
+    $("#se-pwd").value = "";
+    $("#se-pwd").placeholder = j.has_password ? ("已配置（" + (j.密码提示 || "****") + "），留空不修改") : "尚未配置";
+    const c = j.配置 || {};
+    $("#se-port").value = c["端口"] || 8790;
+    $("#se-vault").value = c["笔记库目录"] || "";
+    $("#se-bk").value = c["备份目录"] || "";
+    $("#se-alias").value = Object.entries(c["公司别名"] || {}).map(([k, v]) => k + ": " + v).join("\n");
+    $("#se-kw").value = (c["关键词"] || []).join("\n");
+    $("#se-auto").checked = c["自动建志愿"] !== false;
+    renderEnv(j);
+    setupBadge(!j.已配置 && !(() => { try { return localStorage.getItem("kb.setupskip") === "1"; } catch (e) { return false; } })());
+  } catch (e) { setHint("#se-st", "读取失败：" + (e.message || e), "var(--red)"); }
+}
+$("#se-save").addEventListener("click", async () => {
+  const btn = $("#se-save"); btn.disabled = true;
+  setHint("#se-st", "… 保存中");
+  try {
+    await apiPost("api/settings", {
+      mail_host: $("#se-host").value, mail_user: $("#se-user").value, mail_password: $("#se-pwd").value,
+    });
+    setHint("#se-st", "✓ 已保存（密码留空 = 保持不变）", "var(--green)");
+    $("#se-pwd").value = "";
+    toast("邮箱配置已保存");
+    loadSettings();
+  } catch (e) { setHint("#se-st", "✗ " + friendlyImapError(e.message || e), "var(--red)"); }
+  btn.disabled = false;
+});
+/* IMAP 报错人话映射（2026-10-02：英文技术串小白看不懂，翻译成下一步动作） */
+function friendlyImapError(msg) {
+  const m = String(msg || "");
+  if (/未配置/.test(m)) return "请先填写下面的 IMAP 服务器 / 邮箱账号 / 授权码";
+  if (/getaddrinfo|ENOTFOUND|Name or service|not known|nodename/i.test(m))
+    return "服务器地址写错了，或网络不通——检查 IMAP 服务器拼写（如 imap.163.com），开了代理就先关掉";
+  if (/timed? ?out|timeout|超时|refused/i.test(m))
+    return "连接超时：网络不通或被代理/防火墙拦截，关代理后重试";
+  if (/LOGIN|AUTH|Authentication|authentication|INVALID|password|密码|授权/i.test(m))
+    return "账号或授权码不对（最常见：把登录密码当成了授权码——授权码在邮箱设置里单独生成）";
+  return m;
+}
+$("#se-test").addEventListener("click", async () => {
+  const btn = $("#se-test"); btn.disabled = true;
+  /* 先保存再测（2026-10-02 修）：原来测的是「已保存」的旧配置，用户填完直接点测试会报
+     「未配置」，不理解填了≠保存了；按钮文案同步改为「保存并测试连接」 */
+  setHint("#se-st", "… 正在保存并测试连接（IMAP 握手最长约 30 秒，请稍候）");
+  try {
+    await apiPost("api/settings", {
+      mail_host: $("#se-host").value, mail_user: $("#se-user").value, mail_password: $("#se-pwd").value,
+    });
+  } catch (e) {
+    setHint("#se-st", "✗ 保存失败：" + friendlyImapError(e.message || e), "var(--red)");
+    btn.disabled = false;
+    return;
+  }
+  try {
+    const j = await apiPost("api/settings_test", {});
+    setHint("#se-st", "✓ " + (j.提示 || "连接成功"), "var(--green)");
+    $("#se-pwd").value = "";
+    loadSettings();
+  } catch (e) {
+    setHint("#se-st", "✗ " + friendlyImapError(e.message || e), "var(--red)");
+  }
+  btn.disabled = false;
+});
+$("#se-savecfg").addEventListener("click", async () => {
+  const btn = $("#se-savecfg"); btn.disabled = true;
+  setHint("#se-cst", "… 保存中");
+  const alias = {};
+  for (const ln of $("#se-alias").value.split("\n")) {
+    const i = ln.search(/[:：]/);
+    if (i > 0) { const k = ln.slice(0, i).trim(), v = ln.slice(i + 1).trim(); if (k && v) alias[k] = v; }
+  }
+  const kw = $("#se-kw").value.split("\n").map(s => s.trim()).filter(Boolean);
+  const body = { "公司别名": alias, "关键词": kw, "自动建志愿": $("#se-auto").checked,
+                 "笔记库目录": $("#se-vault").value.trim(), "备份目录": $("#se-bk").value.trim() };
+  const p = parseInt($("#se-port").value, 10);
+  if (p) body["端口"] = p;
+  try {
+    const j = await apiPost("api/settings", body);
+    setHint("#se-cst", "✓ " + (j.提示 || "已保存"), "var(--green)");
+    toast("运行参数已保存");
+    loadSettings();
+  } catch (e) { setHint("#se-cst", "✗ " + (e.message || e), "var(--red)"); }
+  btn.disabled = false;
+});
+
+/* ================= 口径 ================= */
+/* 投递 = 状态 ≠ 未投递；漏斗 = 到达该阶段及以上（含已通过，不含终止/未投递）；
+   逾期 = 测评类考试已过期 且 有效完成=false 且 状态 ∈ {简历评估, 测评中}（不算"考完等结果"）；
+   考试已过·待确认 = 已过期（结束时间||开始时间 < 今天）且 有效完成=false 的考试安排行；
+   有效完成 = Exams.完成 true OR 状态推断（见 EINFER，笔试中≠测评已完成）——状态推进后自动消失；
+   卡住 = 状态 ∈ {未投递, 简历评估} 且 投递日期距今 > 7 天。
+   近期安排/逾期/待确认/今日到期 全部以「考试安排」Exams 子表为数据源。 */
+function applied(rows) { return rows.filter(r => r["投递状态"] && r["投递状态"] !== "未投递"); }
+
+function overdueOf(exams, today) {
+  const t0 = day0(today), out = [];
+  for (const x of exams) {
+    if (examWaived(x)) continue;
+    if (x["考试类型"] !== "测评") continue;
+    if (!["简历评估", "测评中"].includes(x["投递状态"])) continue;
+    if ((x["来源主题"] || "").includes("默认提醒")) continue;   // 每日提醒无截止可言，不会“逾期”（2026-09-20）
+    const ws = pd(x["开始时间"]);
+    if (!ws) continue;
+    const we = pd(x["结束时间"]);
+    const ref = we || ws;                                       // 逾期看截止时刻（窗口类），不是开始日
+    const days = dayDiff(t0, ref);
+    if (days > 0 && !examDone(x))
+      out.push({ id: x.id, 公司: x["公司"] || "未知公司", 类型: "测评(未完成)", 天数: days });
+  }
+  return out.sort((a, b) => b.天数 - a.天数);
+}
+
+/* 今日截止：结束时间=今天 且未完成（错过就变逾期，赶在今晚之前） */
+function dueTodayOf(exams, today) {
+  const t0 = day0(today), out = [];
+  for (const x of exams) {
+    if (examWaived(x)) continue;
+    if (x["投递状态"] === "终止") continue;
+    if (examDone(x)) continue;
+    const we = pd(x["结束时间"]);
+    if (we && dayDiff(we, t0) === 0) out.push({ x, d: we });
+  }
+  return out.sort((a, b) => a.d - b.d);
+}
+
+function renderDueToday(exams) {
+  const w = dueTodayOf(exams, new Date());
+  const box = $("#duetoday");
+  box.replaceChildren();
+  box.classList.toggle("show", w.length > 0);
+  if (!w.length) return;
+  box.append(el("div", "at", "今日截止 · " + w.length + " 条（今晚前完成）"));
+  const items = el("div", "items");
+  for (const { x, d } of w) {
+    const c = el("span", "ochip");
+    c.append(el("b", null, x["公司"] || "未知公司"),
+      document.createTextNode(" · " + x["考试类型"] + " "));
+    if (x["考试链接"]) {
+      const a = el("a", null, "链接↗");
+      a.href = x["考试链接"]; a.target = "_blank"; a.rel = "noopener";
+      a.style.cssText = "color:inherit;text-decoration:underline;opacity:.85";
+      c.append(a, document.createTextNode(" "));
+    }
+    c.append(document.createTextNode(hm(d) + " 前 · 标记完成 "));
+    const ck = document.createElement("input");
+    ck.type = "checkbox"; ck.className = "ckchip"; ck.title = "标记考试完成（Exams.完成）";
+    ck.addEventListener("change", () => {
+      x["完成"] = true; render();
+      apiToggleExam(x.id, true)
+        .then(() => toast("已标记完成"))
+        .catch(err => { x["完成"] = false; render(); toast("保存失败：" + err.message); });
+    });
+    c.append(ck);
+    items.append(c);
+  }
+  box.append(items);
+}
+
+/* 考试已过·待确认：已过期（结束时间||开始时间 < 今天）且有效完成=false，可一键标记完成。
+   每日提醒行不进待确认——它常驻近期安排，勾选入口在那里（2026-09-20） */
+function pastExamsOf(exams, today) {
+  const t0 = day0(today), out = [];
+  for (const x of exams) {
+    if (x["投递状态"] === "终止") continue;
+    if (examWaived(x)) continue;                 // 已放弃=隐藏提醒（对齐红线，2026-09-25 修）
+    if ((x["来源主题"] || "").includes("默认提醒")) continue;
+    const ws = pd(x["开始时间"]), we = pd(x["结束时间"]);
+    const ref = we || ws;
+    if (!ref || dayDiff(t0, ref) <= 0) continue;
+    if (!examDone(x)) out.push({ x, d: ref });
+  }
+  return out;
+}
+
+/* ================= 阶段复盘：时间范围（只影响 漏斗/行业/终止 三块） ================= */
+const RRK = "kb.rrange";
+let rrange = "all";
+try { const s = localStorage.getItem(RRK); if (["week", "month", "all"].includes(s)) rrange = s; } catch (e) {}
+const rrangeLabel = () => rrange === "week" ? "本周" : rrange === "month" ? "本月" : "全部";
+function rrangeStart() {
+  const t = day0(new Date());
+  if (rrange === "week") { t.setDate(t.getDate() - (t.getDay() + 6) % 7); return t; }   // 本周一 00:00
+  if (rrange === "month") return new Date(t.getFullYear(), t.getMonth(), 1);            // 当月 1 日 00:00
+  return null;
+}
+function rrangeRows(rows) {
+  const s = rrangeStart();
+  if (!s) return rows;
+  return rows.filter(r => { const d = pd(r["投递日期"]); return d && d >= s; });
+}
+function drawRRangeBtns() {
+  document.querySelectorAll("#rranges .rbtn").forEach(b => b.classList.toggle("on", b.dataset.rr === rrange));
+}
+function setRRange(m) {
+  if (!["week", "month", "all"].includes(m) || m === rrange) return;
+  rrange = m;
+  try { localStorage.setItem(RRK, m); } catch (e) {}
+  drawRRangeBtns();
+  if (data) render();
+}
+document.querySelectorAll("#rranges .rbtn").forEach(b => b.addEventListener("click", () => setRRange(b.dataset.rr)));
+
+/* ================= 渲染 ================= */
+function render() {
+  const rows = (data && data["记录"]) || [];
+  const exams = (data && data["考试"]) || [];
+  const rrows = rrangeRows(rows);   // 范围过滤：仅给 漏斗/行业/终止；耗时/历史/趋势维持全量
+  renderStats(rows, exams); renderDueToday(exams); renderOverdue(exams); renderPast(exams); renderSchedule(exams);
+  renderCalendar();
+  renderTerm(rrows); renderFunnel(rrows); renderIndustry(rrows); renderResponse(rows); renderFunnelHistory(data ? data["快照"] : null);
+  renderTrend(rows); renderStuck(rows); renderMail(data["最近存档"]); renderMailStats(data["存档数"]);
+  renderRecords();
+}
+
+function renderEmpty() {
+  for (const id of ["stats", "schedule", "calendar", "duetoday", "term", "funnel", "response", "fhistory", "industry", "trend", "stuck", "mailfeed", "mailstats", "rectable"])
+    $("#" + id).replaceChildren(el("div", "empty", "暂无数据"));
+}
+
+function setBadge(id, text, cls) {
+  const b = $("#" + id);
+  if (text == null || text === "") { b.hidden = true; return; }
+  b.hidden = false; b.textContent = String(text); b.className = "nbadge " + (cls || "gray");
+}
+
+function paintCards(box, cards) {
+  box.replaceChildren();
+  for (const [lbl, num, sub, color, warn, danger] of cards) {
+    const c = el("div", "stat" + (warn ? " " + warn : "") + (danger ? " " + danger : ""));
+    const n = el("div", "num", String(num));
+    if (!warn && !danger) n.style.color = color;
+    c.append(n, el("div", "lbl", lbl), el("div", "sub", sub));
+    box.append(c);
+  }
+}
+
+function renderStats(rows, exams) {
+  const today = new Date();
+  const app = applied(rows);
+  const cnt = s => rows.filter(r => r["投递状态"] === s).length;
+  const mon = day0(today); mon.setDate(mon.getDate() - (today.getDay() + 6) % 7);   // 本周一
+  const mon0 = new Date(mon); mon0.setDate(mon0.getDate() - 7);                     // 上周一
+  const weekN = app.filter(r => { const d = pd(r["投递日期"]); return d && d >= mon; }).length;
+  const lastN = app.filter(r => { const d = pd(r["投递日期"]); return d && d >= mon0 && d < mon; }).length;
+  /* 今日截止只看「今日截止警报条」（#duetoday，同源 dueTodayOf，带链接/标记完成）——
+     曾有同名 KPI 条 #todaystat，与警报重复，2026-09-26 用户反馈后删除 */
+  const dueT = dueTodayOf(exams, today);
+  const ov = overdueOf(exams, today);
+  const pct = (n, base) => base ? Math.round(n / base * 100) + "%" : "—";
+  /* 阶段复盘页：统计卡（含已逾期） */
+  paintCards($("#stats"), [
+    ["投递总数", app.length, "跟踪 " + rows.length + " 家公司", "var(--text)", "", ""],
+    ["本周新增", weekN, "上周 " + lastN, "var(--text)", "", ""],
+    ["面试中", cnt("面试中"), "占投递 " + pct(cnt("面试中"), app.length), "var(--purple)", "", ""],
+    ["笔试中", cnt("笔试中"), "占投递 " + pct(cnt("笔试中"), app.length), "var(--orange)", "", ""],
+    ["已通过", cnt("已通过"), "通过率 " + pct(cnt("已通过"), app.length), "var(--green)", "", ""],
+    ["终止", cnt("终止"), "流程已结束 · 详见终止分析", "var(--red)", "", ""],
+    ["已逾期", ov.length, ov.length ? new Set(ov.map(x => x.公司)).size + " 家公司" : "一切正常", "var(--red)", "", ov.length ? "danger" : ""],
+  ]);
+  /* 侧边栏徽章：任务页=逾期(红)/今日截止(橙)/待人工确认(橙)（投递页徽章已去，2026-09-26；
+     2026-10-02 待确认队列并入本徽章——原来挂在「邮件动态」上，点进去却看不到待办） */
+  renderTasksBadge();
+}
+
+/* 任务页徽章（优先级 逾期 > 今日截止 > 待确认）；render() 与 renderQueue() 都会刷新。
+   2026-10-02 待确认队列并入本徽章——原来挂在「邮件动态」上，点进去却看不到待办 */
+function renderTasksBadge() {
+  const ov = (data && overdueOf(data["考试"] || [], new Date())) || [];
+  const dueT = (data && dueTodayOf(data["考试"] || [], new Date())) || [];
+  setBadge("badge-tasks", ov.length || dueT.length || queueItems.length || null,
+           ov.length ? "red" : "orange");
+}
+
+const OVIG_KEY = "kb.ovig";
+let ovIg = new Set();
+try { ovIg = new Set(JSON.parse(localStorage.getItem(OVIG_KEY) || "[]")); } catch (e) {}
+const saveOvIg = () => { try { localStorage.setItem(OVIG_KEY, JSON.stringify([...ovIg])); } catch (e) {} };
+
+function renderOverdue(exams) {
+  const ov = overdueOf(exams, new Date());
+  const box = $("#overdue");
+  box.replaceChildren();
+  const act = ov.filter(x => !ovIg.has(x.id)), hid = ov.length - act.length;
+  box.classList.toggle("show", ov.length > 0);
+  if (!ov.length) return;
+  box.append(el("div", "at", "逾期警报 · " + act.length + " 条" + (hid ? "（已隐藏 " + hid + "）" : "")));
+  const items = el("div", "items");
+  for (const x of act) {
+    const c = el("span", "ochip");
+    c.append(el("b", null, x.公司), document.createTextNode(" · " + x.类型 + " · 已过期 " + x.天数 + " 天"));
+    const x1 = el("span", "x", "✕ 本机隐藏");
+    x1.title = "仅在本浏览器隐藏（不写入数据库）；可在「近期安排」该行勾选完成";
+    x1.onclick = () => { ovIg.add(x.id); saveOvIg(); renderOverdue(exams); };
+    c.append(x1);
+    items.append(c);
+  }
+  if (hid) {
+    const r = el("span", "ochip res", "↩ 恢复本机隐藏 " + hid + " 条");
+    r.onclick = () => { ovIg.clear(); saveOvIg(); renderOverdue(exams); };
+    items.append(r);
+  }
+  box.append(items);
+}
+
+function renderPast(exams) {
+  const all = pastExamsOf(exams, new Date());
+  const act = all.filter(w => !ovIg.has(w.x.id)), hid = all.length - act.length;
+  const w = act;
+  const box = $("#waitresult");
+  box.replaceChildren();
+  box.classList.toggle("show", all.length > 0);
+  if (!all.length) return;
+  box.append(el("div", "at", "考试已过 · 待确认 · " + act.length + " 条" + (hid ? "（已隐藏 " + hid + "）" : "")));
+  const items = el("div", "items");
+  for (const { x, d } of w) {
+    const c = el("span", "ochip");
+    c.append(el("b", null, x["公司"] || "未知公司"),
+      document.createTextNode(" · " + x["考试类型"] + " "));
+    if (x["考试链接"]) {                                     // 有链接 → 可点开（场次反馈/考试入口）
+      const a = el("a", null, "链接↗");
+      a.href = x["考试链接"]; a.target = "_blank"; a.rel = "noopener";
+      a.style.cssText = "color:inherit;text-decoration:underline;opacity:.85";
+      a.title = "打开考试/反馈链接：" + x["考试链接"];
+      c.append(a, document.createTextNode(" "));
+    }
+    c.append(document.createTextNode(fD(d) + " 已过 · 标记完成 "));
+    const ck = document.createElement("input");
+    ck.type = "checkbox"; ck.className = "ckchip"; ck.title = "标记考试完成（Exams.完成）";
+    ck.addEventListener("change", () => {
+      const cur = markExamDone(x, true); render();               // 乐观
+      apiToggleExam(x.id, true)
+        .then(() => toast("已标记完成"))
+        .catch(err => { cur["完成"] = false; render(); toast("保存失败：" + err.message); });
+    });
+    const x1 = el("span", "x", "✕ 本机隐藏");
+    x1.title = "仅在本浏览器隐藏（不写入数据库）；要彻底处理请点「标记完成」";
+    x1.onclick = () => { ovIg.add(x.id); saveOvIg(); renderPast(exams); };
+    c.append(x1, ck);
+    items.append(c);
+  }
+  if (hid) {
+    const r = el("span", "ochip res", "↩ 恢复本机隐藏 " + hid + " 条");
+    r.onclick = () => { ovIg.clear(); saveOvIg(); renderPast(exams); };
+    items.append(r);
+  }
+  box.append(items);
+}
+
+/* 当天明细浮层：只读（完成/过期未完成/未完成 + 链接） */
+function closeDayPopup() { const p = document.querySelector(".popbg"); if (p) p.remove(); }
+function showDayPopup(d, evs) {
+  closeDayPopup();
+  const t0 = day0(new Date());
+  const ov = el("div", "popbg");
+  const card = el("div", "popcard");
+  const head = el("div", "pophead");
+  head.append(el("b", null, fD(d) + " " + WD[d.getDay()] + (dayDiff(d, t0) === 0 ? " · 今天" : "")));
+  const xc = el("span", "x", "✕"); xc.onclick = closeDayPopup;
+  head.append(xc);
+  card.append(head);
+  const wv = evs.filter(e => examWaived(e.row));
+  const rest = evs.filter(e => !examWaived(e.row));
+  const dn = rest.filter(e => calChipState(e).done);
+  const un = rest.filter(e => !calChipState(e).done);
+  const ex = un.filter(e => examExpired(e.row));          // 已错过: 整场考试截止已过
+  const open = un.filter(e => !examExpired(e.row));       // 待完成: 窗口仍开着（仅今天/未来日会出现）
+  const isPast = dayDiff(d, t0) < 0;
+  const sec = (label, cls, list) => {
+    if (!list.length) return;                             // 空分区不渲染（过去日天然没有“待完成”）
+    card.append(el("div", "popsec " + cls, label + " · " + list.length));
+    for (const e of list) {
+      const r = el("div", "poprow");
+      r.append(el("span", "badge " + (BB[e.type] || "bw"), e.type + (e.sub ? "·" + e.sub : "")));
+      const co = el("span", "pco", e.co + (e.pos ? " · " + e.pos : ""));
+      co.title = co.textContent;
+      r.append(co);
+      if (e.link) {
+        const a = el("a", null, "链接↗");
+        a.href = e.link; a.target = "_blank"; a.rel = "noopener";
+        r.append(a);
+      }
+      card.append(r);
+    }
+  };
+  sec("✓ 已完成", "g", dn);
+  sec("🚫 已放弃", "w", wv);
+  sec("✗ 已错过", "r", ex);
+  if (!isPast) sec("□ 待完成", "o", open);
+  ov.append(card);
+  ov.addEventListener("click", e => { if (e.target === ov) closeDayPopup(); });
+  document.body.append(ov);
+}
+window.addEventListener("keydown", e => { if (e.key === "Escape") closeDayPopup(); });
+
+/* ================= 近期安排 ================= */
+const RK = "kb.range";
+let range = { mode: "3", start: "", end: "" };
+try {
+  const s = JSON.parse(localStorage.getItem(RK) || "null");
+  if (s && ["3", "week", "7", "custom"].includes(s.mode))
+    range = { mode: s.mode, start: s.start || "", end: s.end || "" };
+} catch (e) {}
+function saveRange() { try { localStorage.setItem(RK, JSON.stringify(range)); } catch (e) {} }
+function setRange(mode, extra) {
+  range.mode = mode;
+  if (mode === "custom" && extra) { range.start = extra.start; range.end = extra.end; }
+  saveRange(); drawRangeBtns();
+  renderSchedule((data && data["考试"]) || []);
+}
+function drawRangeBtns() {
+  document.querySelectorAll(".rbtn:not([data-rr])").forEach(b => b.classList.toggle("on", b.dataset.r === range.mode));
+  $("#rdates").hidden = range.mode !== "custom";
+  $("#rstart").value = range.start; $("#rend").value = range.end;
+}
+document.querySelectorAll(".rbtn:not([data-rr])").forEach(b => b.addEventListener("click", () => setRange(b.dataset.r)));
+$("#rstart").addEventListener("change", e => setRange("custom", { start: e.target.value, end: range.end }));
+$("#rend").addEventListener("change", e => setRange("custom", { start: range.start, end: e.target.value }));
+
+function rangeDays() {
+  const t = day0(new Date());
+  if (range.mode === "week") {
+    const s = new Date(t); s.setDate(s.getDate() - (t.getDay() + 6) % 7);   // 周一
+    const e = new Date(s); e.setDate(e.getDate() + 6);                      // 周日
+    return [s, e];
+  }
+  if (range.mode === "7") {
+    const e = new Date(t); e.setDate(e.getDate() + 6);
+    return [t, e];
+  }
+  if (range.mode === "custom") {
+    const p = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || "");
+                     return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+    const s = p(range.start), e = p(range.end);
+    if (s && e && s <= e) return [s, e];
+  }
+  const e = new Date(t); e.setDate(e.getDate() + 2);                        // 默认3天
+  return [t, e];
+}
+
+/* 事件抽取（数据源=考试安排 Exams 行）：
+   跨天考试按 24 点截断拆多行（开始/继续×N/结束）；测评无结束时间=全天；其余显示时刻；
+   未完成=窗口内每天显示；手动勾选完成=当天仍显示、次日起消失（2026-09-23 定版） */
+function eventsOfExam(x, horizon, forCal) {
+  const out = [];
+  const base = { id: x.id, co: x["公司"] || "未知公司", pos: x["岗位"] || "",
+                 link: x["考试链接"] || "", type: x["考试类型"] || "考试", row: x };
+  const ws = pd(x["开始时间"]), we = pd(x["结束时间"]);
+  if (!ws) return out;
+  if (we && dayDiff(we, ws) > 0) {                       // 跨天窗口：每天一条 开始/进行中/截止（同一天内永远只有一条）
+    out.push({ ...base, d: ws, sub: "开始", time: hm(ws) + " 起" });
+    for (let d = new Date(day0(ws).getTime() + 864e5); dayDiff(d, we) < 0; d.setDate(d.getDate() + 1))
+      out.push({ ...base, d: new Date(d), sub: "进行中", time: "全天" });
+    out.push({ ...base, d: we, sub: "截止", time: hm(we) + " 前" });
+  } else if (!we) {                                      // 无结束时间
+    if ((x["来源主题"] || "").includes("默认提醒")) {     // 开放提醒：邮件没给时限 → 每天提醒直到勾完成（蚂蚁类，2026-09-20 定版）
+      const hz = day0(horizon || new Date());
+      let d = day0(ws); const t0 = day0(new Date());
+      if (d < t0) d = t0;                                // 过去的日子不再补提醒
+      for (let i = 0; i < 400 && d <= hz; i++, d.setDate(d.getDate() + 1))
+        out.push({ ...base, d: new Date(d), sub: "提醒", time: "全天" });
+      if (!out.length) out.push({ ...base, d: ws, sub: "提醒", time: "全天" });
+    } else {                                             // 固定场次/截止日漏记结束 → 单日
+      out.push({ ...base, d: ws, sub: null, time: "全天" });
+    }
+  } else {
+    const tstr = (hm(ws) === "00:00" && hm(we) === "23:59") ? "全天" : hm(ws) + " - " + hm(we);
+    out.push({ ...base, d: ws, sub: null, time: tstr });
+  }
+  const today0 = day0(new Date());
+  if (examWaived(x)) {
+    if (!forCal) return [];                     // 近期安排：已放弃不再提醒
+    const kept = out.filter(e => dayDiff(e.d, today0) <= 0);   // 日历：历史保留
+    if (kept.length) return kept;
+    return [{ ...base, d: new Date(today0), sub: "已放弃", time: "全天" }];
+  }
+  if (examDone(x)) {
+    if (!forCal) {                              // —— 近期安排（清单口径）——
+      if (x["完成"] === true) {                 // 手动勾选：完成当天仍显示（可撤销），次日起消失
+        const dd = pd(x["完成时间"]);
+        if (dd && dayDiff(dd, today0) === 0)
+          return [{ ...base, d: new Date(today0), sub: "已完成", time: "全天" }];
+        return [];
+      }
+      return [];                                // 状态推断完成（无完成时间）→ 不显示
+    }
+    // —— 考试日历（生命周期口径，2026-09-23 定版）——
+    // 已完成=终态：生命周期到完成日终止，画 开始→完成日，此后消失
+    const dday = day0(pd(x["完成时间"]) || today0);
+    const kept = out.filter(e => dayDiff(e.d, dday) <= 0);
+    if (kept.length) return kept;
+    return [{ ...base, d: new Date(dday), sub: "已完成", time: "全天" }];
+  }
+  if (forCal) {
+    // —— 考试日历：未勾选按截止二分（2026-09-23 定版）——
+    if ((x["来源主题"] || "").includes("默认提醒"))       // 每日提醒无截止 → 永不错过，只画今天
+      return out.filter(e => dayDiff(e.d, today0) === 0);
+    const ref = pd(x["结束时间"]) || pd(x["开始时间"]);   // 截止：结束时间，无结束=开始日
+    if (ref && dayDiff(ref, today0) < 0) return out;      // 已错过（终态）：整条生命周期都画
+    return out.filter(e => dayDiff(e.d, today0) >= 0);    // 待完成（中间态）：只画今天及以后
+  }
+  return out;                                   // 近期安排：未完成窗口内每天显示，直到勾选完成
+}
+
+function renderSchedule(exams) {
+  const [rs, re] = rangeDays();
+  const today = day0(new Date());
+  const kOf = d => d.getFullYear() + "-" + fD(d);
+  const rsK = kOf(rs), reK = kOf(re);
+  const byDay = new Map();
+  for (const x of exams) {
+    if (x["投递状态"] === "终止") continue;
+    for (const e of eventsOfExam(x, re)) {
+      const k = kOf(e.d);
+      if (k < rsK || k > reK) continue;
+      if (!byDay.has(k)) byDay.set(k, []);
+      byDay.get(k).push(e);
+    }
+  }
+  const box = $("#schedule"); box.replaceChildren();
+  const days = [...byDay.keys()].sort();
+  if (!days.length) { box.append(el("div", "empty", "范围内没有安排")); return; }
+  const subrank = s => s === "开始" ? 0 : (s === "结束" || s === "截止") ? 2 : 1;
+  for (const k of days) {
+    const list = byDay.get(k);
+    list.sort((a, b) => a.d - b.d || subrank(a.sub) - subrank(b.sub));
+    const past = day0(list[0].d) < today;
+    const hd = el("div", "tl-day" + (past ? " pastday" : ""));
+    hd.append(document.createTextNode(k.slice(5) + " " + WD[list[0].d.getDay()] + " "));
+    const dd = dayDiff(list[0].d, today);
+    if (dd === 0) hd.append(el("span", "tl-badge", "今天"));
+    else if (dd === 1) hd.append(el("span", "tl-badge", "明天"));
+    const tk = el("span", "tk");
+    if (past) {
+      tk.textContent = "· 已过去";
+    } else {
+      tk.append("· 待办 ");
+      let any = false;
+      for (const t of ["测评", "笔试", "面试", "其他事项"]) {
+        const es = list.filter(x => x.type === t);
+        if (!es.length) continue;
+        const pend = es.filter(x => !x.row["完成"] && !examDone(x.row)).length;   // 只算未完成
+        const chip = el("span", "tkchip " + TKC[t] + (pend ? "" : " done"));
+        chip.textContent = (t === "其他事项" ? "其他" : t) + (pend ? String(pend) : "✓");
+        tk.append(chip);
+        any = true;
+      }
+      if (!any) tk.append("✓");
+    }
+    hd.append(tk);
+    box.append(hd);
+    for (const x of list) {
+      const done = x.row["完成"] === true;
+      const row = el("div", "ev" + (past ? " evpast" : "") + (done ? " evdone" : ""));
+      row.append(el("span", "badge " + (BB[x.type] || "bw"), x.type + (x.sub ? "·" + x.sub : "")));
+      row.append(el("span", "etm", x.time));
+      const co = el("span", "eco");
+      co.append(el("b", null, x.co), document.createTextNode(x.pos ? " · " + x.pos : ""));
+      co.title = co.textContent;
+      row.append(co);
+      const lk = el("span", "elink");
+      if (x.link) {
+        const a = el("a", null, x.type + "↗");
+        a.href = x.link; a.target = "_blank"; a.rel = "noopener";
+        a.style.color = LC[x.type] || "var(--blue)";
+        a.title = "该场" + x.type + "的考试链接";
+        lk.append(a);
+      } else lk.append(el("span", "nolink", "—"));
+      row.append(lk);
+      const cell = el("span", "ckcell");
+      if (!x.row["完成"] && examDone(x.row)) {                   // 状态推断 → “自动”淡样式，不可点
+        const auto = el("span", "ckauto", "自动");
+        auto.title = "已随状态推进自动标记完成";
+        cell.append(auto);
+      } else {
+        if (!x.row["完成"]) {                                // 放弃入口就在提醒行上（2026-09-24 定版）
+          const wv = el("a", "wvlink", "放弃");
+          wv.title = "放弃这场考试（不再提醒；可在 ✎ 编辑器恢复）";
+          wv.addEventListener("click", async () => {
+            if (!confirm("放弃「" + x.co + " " + x.type + "」？放弃后不再提醒。")) return;
+            try { await apiPost("api/update_exam", { id: x.id, "放弃": true, "完成": false });
+                  toast("已放弃"); load(); } catch (e) { toast("放弃失败：" + e.message); }
+          });
+          cell.append(wv);
+        }
+        const cb = document.createElement("input");
+        cb.type = "checkbox"; cb.className = "ck"; cb.checked = x.row["完成"] === true;
+        cb.addEventListener("change", () => {
+          const oldv = x.row["完成"] === true, oldt = x.row["完成时间"], nv = cb.checked;
+          const cur = markExamDone(x.row, nv); render();          // 乐观：完成当天显示「已完成」
+          apiToggleExam(x.id, nv)
+            .then(() => load())                                   // 回拉服务端完成时间
+            .catch(err => { cur["完成"] = oldv; cur["完成时间"] = oldt; render(); toast("保存失败：" + err.message); });
+        });
+        cell.append(cb);
+      }
+      row.append(cell);
+      box.append(row);
+    }
+  }
+}
+
+/* ================= 考试日历（月/周视图，点胶囊=切换完成勾选） ================= */
+const CALKEY = "kb.cal";
+let cal = { mode: "month", y: 0, m: 0, week: "", ct: "测评", wct: "笔试" };
+try {
+  const s = JSON.parse(localStorage.getItem(CALKEY) || "null");
+  if (s && (s.mode === "month" || s.mode === "week") && ["测评", "笔试", "面试"].includes(s.ct))
+    cal = { mode: s.mode, y: s.y | 0, m: s.m | 0, week: s.week || "", ct: s.ct, wct: s.wct || "笔试" };
+} catch (e) {}
+const saveCal = () => { try { localStorage.setItem(CALKEY, JSON.stringify(cal)); } catch (e) {} };
+const TYPE_RGB = { "测评": "6,182,212", "笔试": "245,158,11", "面试": "139,92,246" };
+const TYPE_RGB_HEX = { "测评": "#06b6d4", "笔试": "#f59e0b", "面试": "#8b5cf6" };
+const ymd = d => d.getFullYear() + "-" + fD(d);
+const parseYmd = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+const CAL_TK = { "测评": "var(--cyan)", "笔试": "var(--orange)", "面试": "var(--purple)", "其他事项": "var(--faint)" };
+
+function calEvents(hz, dailyFrom) {       // 全部展开事件（跳过终止志愿），复用 eventsOfExam 的拆行逻辑
+  const out = [];
+  const t0 = dailyFrom ? day0(dailyFrom) : null;
+  for (const x of ((data && data["考试"]) || [])) {
+    if (x["投递状态"] === "终止") continue;
+    for (const e of eventsOfExam(x, hz, true)) {
+      if (e.sub === "提醒" && t0 && day0(e.d) > t0) continue;   // 月视图：每日提醒只留在今天，防刷屏
+      out.push(e);
+    }
+  }
+  return out;
+}
+function examExpired(x) {                // 该考试整体是否已过期（截止/单日已过 且 未完成；每日提醒永不过期）
+  if (examDone(x)) return false;
+  if ((x["来源主题"] || "").includes("默认提醒")) return false;
+  const ref = pd(x["结束时间"]) || pd(x["开始时间"]);
+  return !!ref && dayDiff(new Date(), ref) > 0;   // ref 在今天之前 = 已过期
+}
+
+function calChipState(e) {
+  return { done: e.row["完成"] === true || examDone(e.row),
+           auto: e.row["完成"] !== true && examDone(e.row) };
+}
+
+
+function renderCalendar() {
+  const box = $("#calendar"); box.replaceChildren();
+  const today = day0(new Date());
+  if (!cal.y) { cal.y = today.getFullYear(); cal.m = today.getMonth(); saveCal(); }
+  // 月网格几何
+  const first = new Date(cal.y, cal.m, 1);
+  const off = (first.getDay() + 6) % 7;
+  const dim = new Date(cal.y, cal.m + 1, 0).getDate();
+  const mCells = Math.ceil((off + dim) / 7) * 7;
+  const monthEnd = new Date(cal.y, cal.m, mCells - off);
+  // 本周范围
+  let mon = parseYmd(cal.week) || day0(today);
+  mon = day0(mon); mon.setDate(mon.getDate() - (mon.getDay() + 6) % 7);
+  const weekEnd = new Date(mon); weekEnd.setDate(weekEnd.getDate() + 6);
+  // 双视图定版（2026-09-26 视口仪表盘）：右卡=月+周两个日历恒显，高度等卡高、溢出内部滚动；
+  // 原「近期安排更高才展开」的高度启发式（schedH > box.offsetHeight）已随固定卡高失效，删除
+  const evsAll = calEvents(monthEnd > weekEnd ? monthEnd : weekEnd, today);
+  const evsM = evsAll.filter(e => e.type === cal.ct);
+  const byDayM = new Map();
+  for (const e of evsM) { const k = ymd(day0(e.d)); if (!byDayM.has(k)) byDayM.set(k, []); byDayM.get(k).push(e); }
+  renderCalMonth(box, byDayM, today);
+  const dual = true;
+  // 周部分数据(可能跨出月尾)：周图有独立类型切换（wct，2026-09-24）
+  const wct = ["测评", "笔试", "面试"].includes(cal.wct) ? cal.wct : "笔试";
+  const evsW = calEvents(weekEnd, today).filter(e => e.type === wct);
+  const byDayW = new Map();
+  for (const e of evsW) { const k = ymd(day0(e.d)); if (!byDayW.has(k)) byDayW.set(k, []); byDayW.get(k).push(e); }
+  document.querySelectorAll("#calbar [data-cm]").forEach(b => b.style.display = dual ? "none" : "");
+  if (dual) {
+    const dv = el("div", "caldiv");
+    /* 周区翻页（2026-09-26 补）：双视图下 calbar 的‹›只动月，周区一直无法翻，现给周区自己的导航 */
+    const nav = el("span", "wnav");
+    const pb = el("button", "rbtn", "‹"); pb.type = "button"; pb.title = "上一周"; pb.onclick = () => shiftWeek(-1);
+    const nb = el("button", "rbtn", "›"); nb.type = "button"; nb.title = "下一周"; nb.onclick = () => shiftWeek(1);
+    nav.append(pb, el("span", null, "本周 " + fD(mon) + " ~ " + fD(weekEnd)), nb);
+    dv.append(nav);
+    box.append(dv);
+    renderCalWeek(box, byDayW, today, mon);
+  } else if (cal.mode === "week") {
+    renderCalWeek(box, byDayW, today, mon);
+  }
+  // tab 活动态
+  document.querySelectorAll("#ctabs .ctab").forEach(b => {
+    b.classList.toggle("on", b.dataset.ct === cal.ct);
+    const c = TYPE_RGB[cal.ct] || "139,152,169";
+    b.style.borderColor = b.classList.contains("on") ? "rgba(" + c + ",.8)" : "";
+  });
+}
+
+function renderCalMonth(box, byDay, today) {
+  const head = el("div", "calhead");
+  head.append(el("b", null, cal.y + " 年 " + (cal.m + 1) + " 月"),
+    el("span", null, "颜色越深 = 当天" + cal.ct + "越多 · 悬停看数量 · 点击看明细"));
+  box.append(head);
+  const grid = el("div", "calgrid");
+  grid.style.setProperty("--cc", TYPE_RGB_HEX[cal.ct] || "var(--blue)");
+  for (const w of ["一", "二", "三", "四", "五", "六", "日"]) grid.append(el("div", "calwd", "周" + w));
+  const first = new Date(cal.y, cal.m, 1);
+  const dim = new Date(cal.y, cal.m + 1, 0).getDate();
+  const off = (first.getDay() + 6) % 7;
+  const cells = Math.ceil((off + dim) / 7) * 7;
+  for (let i = 0; i < cells; i++) {
+    const d = new Date(cal.y, cal.m, i - off + 1);
+    const inM = d.getMonth() === cal.m;
+    const evs = byDay.get(ymd(d)) || [];
+    const cnt = evs.length;
+    const dn = evs.filter(e => calChipState(e).done).length;
+    const ms = cnt - dn;
+    const future = dayDiff(d, today) > 0;
+    const lv = cnt === 0 ? 0 : Math.min(8, Math.max(1, Math.round(cnt / 2)));  // 绝对分档：2场/级，含义跨月稳定
+    const cell = el("div", "gcell lv" + lv + (inM ? "" : " off")
+      + (dayDiff(d, today) === 0 ? " today" : "") + (cnt ? " has" : "")
+      + (future && cnt ? " plan" : ""));
+    cell.append(el("div", "gnum", d.getDate()));
+    if (cnt) {
+      cell.append(el("div", "gcnt", String(cnt)));
+      const tip = future ? "待考 " + cnt
+        : (dayDiff(d, today) === 0 ? "完成 " + dn + " · 待完成 " + ms : "完成 " + dn + " · 错过 " + ms);
+      cell.title = fD(d) + " · " + cal.ct + " " + cnt + " 场（" + tip + "）· 点击看明细";
+      cell.onclick = () => showDayPopup(d, evs);
+    }
+    grid.append(cell);
+  }
+  box.append(grid);
+}
+
+function renderCalWeek(box, byDay, today, mon) {
+  const sun = new Date(mon); sun.setDate(sun.getDate() + 6);
+  const wct = ["测评", "笔试", "面试"].includes(cal.wct) ? cal.wct : "笔试";
+  const head = el("div", "calhead");
+  head.append(el("b", null, fD(mon) + " ~ " + fD(sun)));
+  const wtabs = el("div", "ctabs");
+  for (const tp of ["测评", "笔试", "面试"]) {
+    const tb = el("button", "ctab" + (wct === tp ? " on" : ""), tp);
+    tb.type = "button"; tb.dataset.ct = tp;
+    tb.onclick = () => { cal.wct = tp; saveCal(); renderCalendar(); };
+    wtabs.append(tb);
+  }
+  head.append(wtabs,
+    el("span", null, "柱高 = 当天" + wct + "场数 · 点击柱看明细"));
+  box.append(head);
+  const grid = el("div", "wchart");
+  grid.style.setProperty("--cc", TYPE_RGB_HEX[wct] || "var(--blue)");
+  let max = 1;
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(mon); d.setDate(d.getDate() + i);
+    const evs = byDay.get(ymd(d)) || [];
+    const dn = evs.filter(e => calChipState(e).done).length;
+    max = Math.max(max, evs.length);
+    days.push({ d, evs, dn, ms: evs.length - dn, isT: dayDiff(d, today) === 0 });
+  }
+  for (const { d, evs, isT } of days) {
+    const col = el("div", "wcol" + (isT ? " today" : ""));
+    col.append(el("div", "wcnt", evs.length ? String(evs.length) : ""));
+    const barBox = el("div", "wbarbox");
+    const bar = el("div", "wbar");
+    if (evs.length) {
+      const parts = { g: 0, r: 0, o: 0, b: 0 };
+      for (const e of evs) {
+        if (calChipState(e).done) parts.g++;                 // 完成
+        else if (dayDiff(d, today) > 0) parts.b++;           // 未来计划
+        else if (examExpired(e.row)) parts.r++;              // 整场已过期未完成
+        else parts.o++;                                      // 窗口仍开着/进行中
+      }
+      bar.style.height = Math.max(12, evs.length / max * 96) + "px";
+      for (const [cls, n] of Object.entries(parts)) if (n) { const f = el("i", cls); f.style.flex = n / evs.length * 100; bar.append(f); }
+      bar.title = fD(d) + " · " + cal.ct + " " + evs.length + " 场"
+        + (parts.g ? " · 完成 " + parts.g : "") + (parts.r ? " · 错过 " + parts.r : "")
+        + (parts.o ? " · 进行中 " + parts.o : "") + (parts.b ? " · 待考 " + parts.b : "") + " · 点击看明细";
+      bar.onclick = () => showDayPopup(d, evs);
+      bar.style.cursor = "pointer";
+    } else bar.classList.add("none");
+    barBox.append(bar);
+    col.append(barBox, el("div", "wn", fD(d)));   // 今日只用描边高亮，不加文字（用户定版）
+    grid.append(col);
+  }
+  box.append(grid);
+}
+
+function shiftWeek(n) {                  // 周翻页：以周一为锚，只动周（月网格独立由 calbar 翻）
+  const a = parseYmd(cal.week) || day0(new Date());
+  a.setDate(a.getDate() - (a.getDay() + 6) % 7 + 7 * n);
+  cal.week = ymd(a);
+  saveCal(); renderCalendar();
+}
+function shiftCal(n) {
+  if (cal.mode === "month") {
+    let m = cal.m + n;
+    cal.y += Math.floor(m / 12);
+    cal.m = ((m % 12) + 12) % 12;
+  } else {
+    const a = parseYmd(cal.week) || day0(new Date());
+    a.setDate(a.getDate() + 7 * n);
+    cal.week = ymd(a);
+  }
+  saveCal(); renderCalendar();
+}
+document.querySelectorAll("#ctabs .ctab").forEach(b => b.onclick = () => {
+  cal.ct = b.dataset.ct; saveCal(); renderCalendar();
+});
+$("#calPrev").onclick = () => shiftCal(-1);
+$("#calNext").onclick = () => shiftCal(1);
+$("#calToday").onclick = () => {
+  const t = new Date();
+  cal.y = t.getFullYear(); cal.m = t.getMonth(); cal.week = ymd(day0(t));
+  saveCal(); renderCalendar();
+};
+document.querySelectorAll("#calbar [data-cm]").forEach(b =>
+  b.onclick = () => { cal.mode = b.dataset.cm; saveCal(); renderCalendar(); });
+
+/* 终止原因以「状态备注」为准（用户在此标注，界面上没有单独入口）；历史写在终止原因字段里的兜底 */
+function termReason(r) {
+  return ((r["状态备注"] || "").trim() || (r["终止原因"] || "").trim() || "");
+}
+
+function renderTerm(rows) {
+  const term = rows.filter(r => r["投递状态"] === "终止");
+  $("#termhint").textContent = "共 " + term.length + " 条 · 范围：" + rrangeLabel();
+  const box = $("#term"); box.replaceChildren();
+  if (!rows.length) { box.append(el("div", "empty", "范围内没有投递")); return; }
+  if (!term.length) { box.append(el("div", "empty", "没有终止的投递")); return; }
+  const m = {};
+  term.forEach(r => { const k = termReason(r) || "未注明"; m[k] = (m[k] || 0) + 1; });
+  // 统一红系渐变（去彩虹），与行业分布蓝系区分
+  hbars(box, Object.entries(m).sort((a, b) => b[1] - a[1]),
+    () => "linear-gradient(90deg,var(--red),color-mix(in srgb,var(--red) 55%,transparent))", 76, rows.length);
+}
+
+function hbars(box, entries, colorOf, labelW, total) {
+  box.replaceChildren();
+  const max = entries.length ? entries[0][1] : 1;
+  const den = total || entries.reduce((s, [, n]) => s + n, 0) || 1;
+  entries.forEach(([name, c], i) => {
+    const row = el("div", "brow");
+    row.title = name + "：" + c + " 条 · 占比 " + Math.round(c / den * 100) + "%";
+    const l = el("span", "bl", name);
+    if (labelW) l.style.width = labelW + "px";
+    const bar = el("div", "bb");
+    bar.style.background = colorOf(name, i);
+    bar.style.minWidth = c ? "3px" : "0";
+    grow(bar, c / max * 100);
+    const t = el("div", "bt"); t.append(bar);
+    row.append(l, t, el("span", "bn", String(c)));
+    box.append(row);
+  });
+}
+
+/* 投递漏斗：累计到达口径（终止按原因归位到止步阶段） */
+function stageRank(x) {
+  if (x["投递状态"] === "终止") {
+    const r = termReason(x);
+    if (r.includes("面试")) return 5;
+    if (r.includes("笔试")) return 3;
+    if (r.includes("测评")) return 2;
+    return 1;                                   // 简历挂等 → 止步初筛
+  }
+  return { "未投递": 0, "简历评估": 1, "测评中": 2, "笔试中": 3, "面试中": 4, "已通过": 5 }[x["投递状态"]] ?? 1;
+}
+function renderFunnel(rows) {
+  const hint = $("#funnelhint"); if (hint) hint.textContent = "范围：" + rrangeLabel() + " · 到达口径 · 含终止归位";
+  const box = $("#funnel"); box.replaceChildren();
+  if (!rows.length) { box.append(el("div", "empty", "范围内没有投递")); return; }
+  const stages = [["投递", 1], ["初筛通过", 2], ["进入笔试", 3], ["进入面试", 4], ["Offer", 5]];
+  const applied = rows.filter(r => r["投递状态"] !== "未投递");
+  const counts = stages.map(([lab, k]) => [lab, applied.filter(r => stageRank(r) >= k).length]);
+  const max = Math.max(1, counts[0][1]);
+  const grad = "linear-gradient(90deg,var(--blue),var(--purple))";
+  counts.forEach(([lab, c], i) => {
+    const prev = i ? counts[i - 1][1] : 0;
+    const pct = i && prev ? Math.round(c / prev * 100) : 0;
+    if (i) box.append(el("div", "fconv", "↓ " + pct + "%"));
+    const row = el("div", "frow");
+    const l = el("span", "fl", lab);
+    const barW = Math.max(c / max * 100, 2);
+    const bar = el("div", "fb");
+    bar.style.width = barW + "%";
+    bar.style.background = c ? grad : "var(--card2)";
+    const t = el("div", "ft"); t.append(bar);
+    row.append(l, t, el("span", "fn", String(c)));
+    row.title = i ? lab + "：" + c + " 家 · 较上一阶段 " + pct + "%" : lab + "：" + c + " 家";
+    box.append(row);
+  });
+  box.append(el("div", "fnote", "累计到达 = 曾进入该阶段的公司数（终止已按止步阶段归位）"));
+}
+
+/* 流程耗时：投递→首封回音 分布 + 在途排行 */
+function renderResponse(rows) {
+  const box = $("#response"); box.replaceChildren();
+  const t0 = new Date();
+  const resp = [], silent = [];
+  for (const r of rows) {
+    if (r["投递状态"] === "未投递") continue;
+    const a = pd(r["投递日期"]);
+    const fm = pd(r["首邮"]);
+    if (!a) continue;
+    if (fm) resp.push({ co: r["公司名称"], days: Math.max(0, Math.round((day0(fm) - day0(a)) / 864e5)) });
+    else silent.push({ co: r["公司名称"], days: Math.max(0, Math.round((day0(t0) - day0(a)) / 864e5)) });
+  }
+  const buckets = [["0-3 天", 0, 3], ["4-7 天", 4, 7], ["8-14 天", 8, 14], ["15+ 天", 15, 9999]];
+  const st = el("div", "rtstats");
+  const avg = resp.length ? Math.round(resp.reduce((a, b) => a + b.days, 0) / resp.length * 10) / 10 : "—";
+  st.append(
+    Object.assign(el("div", null, ""), {}),
+  );
+  st.replaceChildren();
+  const mk = (v, l, col) => { const d = el("div"); const b = el("b", null, String(v)); if (col) b.style.color = col; d.append(b, el("span", null, l)); return d; };
+  st.append(mk(resp.length ? avg : "—", "平均响应(天)", "var(--blue)"),
+            mk(resp.length, "已响应", "var(--green)"),
+            mk(silent.length, "暂无回音", "var(--faint)"));
+  box.append(st);
+  const bl = el("div", "rbuckets");
+  const bmax = Math.max(1, ...buckets.map(([l, lo, hi]) => resp.filter(x => x.days >= lo && x.days <= hi).length));
+  for (const [l, lo, hi] of buckets) {
+    const n = resp.filter(x => x.days >= lo && x.days <= hi).length;
+    const d = el("div", "rb");
+    d.title = l + "：" + n + " 家";
+    const bar = el("i"); bar.style.height = Math.max(n ? 8 : 2, n / bmax * 30) + "px";
+    d.append(bar, el("span", null, l), el("em", null, String(n)));
+    bl.append(d);
+  }
+  box.append(bl);
+  const tt = el("div", "rttitle", "在途公司 · 按等待时长");
+  box.append(tt);
+  const inflight = rows.filter(r => ["简历评估", "测评中", "笔试中", "面试中"].includes(r["投递状态"]))
+    .map(r => ({ co: r["公司名称"] || "未知", st: r["投递状态"], url: r["网申链接"] || "",
+                 days: pd(r["投递日期"]) ? Math.max(0, Math.round((day0(t0) - day0(pd(r["投递日期"]))) / 864e5)) : -1 }))
+    .filter(x => x.days >= 0).sort((a, b) => b.days - a.days).slice(0, 8);
+  if (!inflight.length) { box.append(el("div", "empty", "暂无在途投递")); return; }
+  for (const x of inflight) {
+    const row = el("div", "ir");
+    row.append(el("b", null, x.co), el("span", "ist", x.st));
+    const sp = el("span", "idays", x.days + " 天");
+    if (x.days > 7) sp.style.color = "var(--orange)";
+    if (x.days > 14) sp.style.color = "var(--red)";
+    row.append(sp);
+    if (x.url) {
+      const a = el("a", null, "网申↗");
+      a.href = x.url; a.target = "_blank"; a.rel = "noopener";
+      a.style.cssText = "color:var(--blue);text-decoration:underline;font-size:11px;flex:none";
+      row.append(a);
+    }
+    box.append(row);
+  }
+}
+
+/* 漏斗历史: 每日快照折线 (纯SVG) */
+function renderFunnelHistory(snaps) {
+  const box = $("#fhistory"); box.replaceChildren();
+  const lines = [
+    ["s2", "测评中", "var(--cyan)"], ["s3", "笔试中", "var(--orange)"], ["s4", "面试中", "var(--purple)"],
+  ];
+  const seen = {};                                   // 同日多行→取最后写入（历史修复期去重）
+  for (const sp of (snaps || [])) if (sp["日期"]) seen[sp["日期"]] = sp;
+  const data = Object.keys(seen).sort().map(k => seen[k]).slice(-30);
+  if (data.length < 2) {
+    box.append(el("div", "empty", "快照积累中（每日同步自动记录，" + (data.length ? "已 " + data.length + " 天" : "明天起") + " 出现折线）"));
+    return;
+  }
+  const W = 800, H = 180, P = 28;
+  const ymax = Math.max(2, ...data.flatMap(s => lines.map(l => s[l[0]] || 0)));
+  const xAt = i => P + i / (data.length - 1) * (W - P * 2);
+  const yAt = v => H - P - v / ymax * (H - P * 2);
+  let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block">';
+  for (let gy = 0; gy <= ymax; gy += Math.ceil(ymax / 4)) {
+    svg += '<line x1="' + P + '" x2="' + (W - P) + '" y1="' + yAt(gy) + '" y2="' + yAt(gy) + '" stroke="var(--border)" stroke-width="1"/>';
+    svg += '<text x="' + (P - 6) + '" y="' + (yAt(gy) + 4) + '" font-size="10" fill="var(--faint)" text-anchor="end">' + gy + '</text>';
+  }
+  for (let i = 0; i < data.length; i += Math.ceil(data.length / 8)) {
+    svg += '<text x="' + xAt(i) + '" y="' + (H - 8) + '" font-size="10" fill="var(--faint)" text-anchor="middle">' + (data[i]["日期"] || "").slice(5) + '</text>';
+  }
+  for (const [key, lab, col] of lines) {
+    const pts = data.map((s, i) => xAt(i) + "," + yAt(s[key] || 0)).join(" ");
+    svg += '<polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    data.forEach((s, i) => {
+      svg += '<circle cx="' + xAt(i) + '" cy="' + yAt(s[key] || 0) + '" r="3.5" fill="' + col + '"><title>' + (s["日期"] || "") + " " + lab + " " + (s[key] || 0) + " 家</title></circle>";
+    });
+    const last = data[data.length - 1];
+    svg += '<text x="' + (xAt(data.length - 1) + 6) + '" y="' + (yAt(last[key] || 0) + 4) + '" font-size="11" font-weight="700" fill="' + col + '">' + (last[key] || 0) + '</text>';
+  }
+  svg += "</svg>";
+  const wrap = el("div", "fhleg");
+  for (const [k, lab, col] of lines) wrap.append(el("span", null, "● " + lab));
+  wrap.querySelectorAll("span").forEach((sp, i) => sp.style.color = lines[i][2]);
+  box.append(wrap);
+  const holder = el("div"); holder.innerHTML = svg;
+  box.append(holder);
+}
+
+function renderIndustry(rows) {
+  const hint = $("#indhint"); if (hint) hint.textContent = "Top 6 · 范围：" + rrangeLabel();
+  const box = $("#industry");
+  const m = {};
+  rows.forEach(r => { const k = r["行业"] || "未知"; m[k] = (m[k] || 0) + 1; });
+  if (!rows.length) { box.replaceChildren(el("div", "empty", "范围内没有投递")); return; }
+  hbars(box, Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 6),
+    () => "linear-gradient(90deg,var(--blue),color-mix(in srgb,var(--blue) 55%,transparent))", 76, rows.length);
+}
+
+function renderTrend(rows) {
+  const today = new Date(), map = {};
+  for (const r of applied(rows)) {
+    const d = pd(r["投递日期"]);
+    if (d) { const k = fD(d); map[k] = (map[k] || 0) + 1; }
+  }
+  const buckets = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    buckets.push({ d, c: map[fD(d)] || 0 });
+  }
+  const max = Math.max(1, ...buckets.map(b => b.c));
+  const wrap = el("div", "trend");
+  for (const b of buckets) {
+    const col = el("div", "tcol");
+    col.title = fD(b.d) + "：" + b.c + " 条";
+    col.append(el("div", "tcnt", b.c ? String(b.c) : ""));
+    const bar = el("div", "tbar" + (b.c ? "" : " zero"));
+    bar.style.height = b.c ? Math.max(Math.round(b.c / max * 84), 6) + "px" : "3px";
+    col.append(bar, el("div", "tdate", fD(b.d)));
+    wrap.append(col);
+  }
+  $("#trend").replaceChildren(wrap);
+}
+
+function renderStuck(rows) {
+  const today = new Date(), out = [];
+  for (const r of rows) {
+    const st = r["投递状态"];
+    if (st !== "未投递" && st !== "简历评估") continue;
+    const d = pd(r["投递日期"]);
+    if (!d) continue;
+    const days = dayDiff(today, d);
+    if (days > 7) out.push({ co: r["公司名称"] || "未知公司", days, url: r["网申链接"] || "" });
+  }
+  out.sort((a, b) => b.days - a.days);
+  const box = $("#stuck"); box.replaceChildren();
+  if (!out.length) { box.append(el("div", "empty", "没有卡住的投递")); return; }
+  const chips = el("div", "chips");
+  for (const x of out) {
+    const c = el("span", "schip " + (x.days > 14 ? "hot" : x.days >= 8 ? "warm" : "cool"));
+    c.append(el("b", null, x.co), document.createTextNode(" · " + x.days + " 天无进展"));
+    if (x.url) {                                             // 网申链接：一键去官网催看进度
+      const a = el("a", null, "网申↗");
+      a.href = x.url; a.target = "_blank"; a.rel = "noopener";
+      a.style.cssText = "color:inherit;text-decoration:underline;opacity:.85";
+      a.title = "打开网申链接：" + x.url;
+      c.append(a);
+    }
+    chips.append(c);
+  }
+  box.append(chips);
+}
+
+function renderMail(list) {
+  const box = $("#mailfeed"); box.replaceChildren();
+  const rows = (list || []).slice(0, 10);
+  const fresh = $("#mailfresh");
+  if (fresh) fresh.textContent = "";               // 列表空/无有效时间 → 清空“最新”标记
+  if (!rows.length) { box.append(el("div", "empty", "暂无邮件")); return; }
+  const times = rows.map(m => pd(m["收信时间"])).filter(Boolean);
+  if (fresh && times.length) fresh.textContent = "最新 " + fDT(new Date(Math.max(...times)));
+  for (const m of rows) {
+    const d = pd(m["收信时间"]);
+    const row = el("div", "mrow");
+    const sj = el("span", "msj", m["主题"] || "");
+    sj.title = sj.textContent;                     // 悬停看全主题（textContent，安全）
+    row.append(el("span", "mtime", d ? fDT(d) : "—"),
+      el("span", "mco", m["公司"] || "未知"), sj);
+    row.tabIndex = 0;                              // 整行可点：打开邮件详情（Enter 同）
+    row.title = "查看邮件详情";
+    row.addEventListener("click", () => showMailDetail(m));
+    row.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); showMailDetail(m); } });
+    box.append(row);
+  }
+}
+
+/* 单封邮件详情浮层：只读 + 一键复制主题（主题不可信输入，全程 textContent） */
+function showMailDetail(m) {
+  closeDayPopup();
+  const ov = el("div", "popbg");
+  const card = el("div", "popcard");
+  const head = el("div", "pophead");
+  head.append(el("b", null, m["公司"] || "未知公司"));
+  const xc = el("span", "x", "✕"); xc.onclick = closeDayPopup;
+  head.append(xc);
+  const d = pd(m["收信时间"]);
+  const meta = el("div", "mdmeta", d ? fDT(d) : "—");
+  const sj = el("div", "mdsubj", m["主题"] || "");
+  const cp = el("button", "btn sm", "复制主题"); cp.type = "button";
+  cp.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(m["主题"] || ""); toast("主题已复制"); }
+    catch (e) { toast("复制失败，请手动选择文本"); }
+  });
+  card.append(head, meta, sj, cp);
+  ov.append(card);
+  ov.addEventListener("click", e => { if (e.target === ov) closeDayPopup(); });
+  document.body.append(ov);
+}
+
+/* 邮件页：各公司存档数（复用 /api/data 的 存档数 字段） */
+function renderMailStats(counts) {
+  const box = $("#mailstats"); if (!box) return;
+  box.replaceChildren();
+  const ent = Object.entries(counts || {}).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+  const total = ent.reduce((s, [, n]) => s + n, 0);
+  const hint = $("#mailstats-hint");
+  if (hint) hint.textContent = "共 " + total + " 封 · Top 12";
+  if (!ent.length) { box.append(el("div", "empty", "暂无邮件存档")); return; }
+  const max = ent[0][1];
+  for (const [co, n] of ent.slice(0, 12)) {
+    const row = el("div", "brow");
+    const track = el("div", "bt");
+    const bar = el("div", "bb");
+    bar.style.background = "linear-gradient(90deg,var(--cyan),var(--blue))";
+    grow(bar, Math.max(3, Math.round(n / max * 100)));
+    track.append(bar);
+    const lbl = el("span", "bl", co);
+    lbl.title = co;
+    row.append(lbl, track, el("span", "bn", String(n)));
+    row.tabIndex = 0;                              // 点击/回车 → 跳投递记录并按公司过滤
+    row.title = "在投递记录中查看该公司";
+    const go = () => {
+      showPage("apps");
+      if (location.hash !== "#apps") location.hash = "apps";
+      const si = $("#recsearch");
+      si.value = co;
+      si.dispatchEvent(new Event("input", { bubbles: true }));
+      if (recQ !== co) { recQ = co; recPage = 1; renderRecords(); }   // 监听未生效时兜底
+    };
+    row.addEventListener("click", go);
+    row.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); go(); } });
+    box.append(row);
+  }
+}
+
+/* ================= 投递记录表（查看全部 / 改状态 / 新增 / 行内编辑） ================= */
+async function apiPost(url, body) {
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  let j = null;
+  try { j = await r.json(); } catch (e) {}
+  if (!(j && j.ok)) throw new Error((j && j.error) || "HTTP " + r.status);
+  return j;
+}
+async function apiSetStatus(id, v) {
+  await apiPost("api/set_status", { id, "值": v });
+}
+
+async function apiAddRecord(body) {
+  const r = await fetch("api/add_record", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  let j = null;
+  try { j = await r.json(); } catch (e) {}
+  if (!(j && j.ok)) throw new Error((j && j.error) || "HTTP " + r.status);
+  return j;
+}
+
+let recQ = "";
+let recPage = 1, recSize = 10;                    // 分页：每页 10/20/50 条
+let openEditId = null;                            // load() 重渲染后保持展开的志愿 id
+let recStatus = "", recIndustry = "";             // 筛选：状态 / 行业
+let recSort = "date_desc";                        // 排序
+try {
+  const s = parseInt(localStorage.getItem("kb.recsize") || "", 10);
+  if ([10, 20, 50].includes(s)) recSize = s;
+} catch (e) {}
+try {
+  const s = localStorage.getItem("kb.recsort");
+  if (s && Object.keys(RSORTS).includes(s)) recSort = s;
+} catch (e) {}
+
+/* 排序方式（最新考试/行业等筛选所需数据在 renderRecords 内构建） */
+const RSORTS = {
+  date_desc: "投递日期 新→旧",
+  date_asc: "投递日期 旧→新",
+  assess_asc: "测评时间 早→晚",
+  written_asc: "笔试时间 早→晚",
+  interview_asc: "面试时间 早→晚",
+  status: "状态（流程阶段）",
+  company: "公司名称",
+};
+(function buildRecToolbar() {
+  const sortSel = $("#rec-sort");
+  for (const [k, label] of Object.entries(RSORTS)) {
+    const o = el("option", null, "排序: " + label);
+    o.value = k;
+    if (k === recSort) o.selected = true;
+    sortSel.append(o);
+  }
+  sortSel.addEventListener("change", () => {
+    recSort = sortSel.value; recPage = 1;
+    try { localStorage.setItem("kb.recsort", recSort); } catch (e) {}
+    renderRecords();
+  });
+  const stSel = $("#rec-status");
+  const o0 = el("option", null, "状态: 全部"); o0.value = ""; stSel.append(o0);
+  for (const s of STATUS) {
+    const o = el("option", null, "状态: " + s);
+    o.value = s;
+    stSel.append(o);
+  }
+  stSel.addEventListener("change", () => { recStatus = stSel.value; recPage = 1; renderRecords(); });
+  $("#rec-industry").addEventListener("change", e => { recIndustry = e.target.value; recPage = 1; renderRecords(); });
+})();
+
+function renderRecords() {
+  const rows = (data && data["记录"]) || [];
+  const exams = (data && data["考试"]) || [];
+  $("#reccount").textContent = rows.length + " 条";
+  // 每条志愿的最近一场考试（排序用）+ 每类考试各自最近一场（时间+链接）
+  const latest = {}, perType = {};
+  for (const x of exams) {
+    const k = x["记录"];
+    const d = pd(x["开始时间"]);
+    if (k == null || !d) continue;
+    if (!latest[k] || d > latest[k].d)
+      latest[k] = { d, s: fD(d) + " " + x["考试类型"], link: x["考试链接"] || "" };
+    const typ = x["考试类型"];
+    const m = perType[k] || (perType[k] = {});
+    if (!m[typ] || d > m[typ].d) {
+      const we2 = pd(x["结束时间"]);
+      // 截止口径（用户定版 2026-09-23，+7改+3同日）：测评/笔试=结束时间，无结束=收信日+3天
+      // （默认提醒行的开始时间即收信日零点）；面试为一天内场次，无截止概念，用开始时间
+      const dl = typ === "面试" ? d : (we2 || new Date(d.getTime() + 3 * 864e5));
+      m[typ] = { d, end: we2, dl, dlTime: !!we2 && typ !== "面试",
+                 url: x["考试链接"] || "", hasEnd: !!x["结束时间"],
+                 hasTime: typ !== "测评" && (d.getHours() || d.getMinutes()),
+                 done: examDone(x), rowRef: x,
+                 来源: (x["来源主题"] || "").slice(0, 20) };
+    }
+  }
+  // 行业筛选项随数据刷新
+  const indSel = $("#rec-industry");
+  const inds = [...new Set(rows.map(r => (r["行业"] || "").trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "zh-Hans-CN"));
+  indSel.replaceChildren();
+  const io = el("option", null, "行业: 全部"); io.value = ""; indSel.append(io);
+  for (const i of inds) {
+    const o = el("option", null, "行业: " + i);
+    o.value = i;
+    indSel.append(o);
+  }
+  indSel.value = inds.includes(recIndustry) ? recIndustry : "";
+  if (indSel.value !== recIndustry) recIndustry = "";
+  // 过滤 + 排序
+  const q = recQ.trim().toLowerCase();
+  const tval = v => pd(v)?.getTime() ?? 0;
+  const byType = typ => (a, b) => {
+    const av = (perType[a.id] || {})[typ], bv = (perType[b.id] || {})[typ];
+    // 测评/笔试按截止时间排序；面试按场次时间
+    const key = x => x ? (typ === "面试" ? (x.d || 0) : (x.dl || 0)) : 0;
+    const at = key(av) ? new Date(key(av)).getTime() : Infinity, bt = key(bv) ? new Date(key(bv)).getTime() : Infinity;
+    return at === bt ? 0 : at < bt ? -1 : 1;
+  };
+  const list = rows
+    .filter(r => !q || [r["公司名称"], r["岗位名称"], r["行业"]].some(v => (v || "").toLowerCase().includes(q)))
+    .filter(r => !recStatus || r["投递状态"] === recStatus)
+    .filter(r => !recIndustry || (r["行业"] || "") === recIndustry)
+    .sort({
+      date_desc: (a, b) => tval(b["投递日期"]) - tval(a["投递日期"]),
+      date_asc: (a, b) => tval(a["投递日期"]) - tval(b["投递日期"]),
+      assess_asc: byType("测评"),
+      written_asc: byType("笔试"),
+      interview_asc: byType("面试"),
+      status: (a, b) => ((RANK[a["投递状态"]] ?? 7) - (RANK[b["投递状态"]] ?? 7)) || (tval(b["投递日期"]) - tval(a["投递日期"])),
+      company: (a, b) => (a["公司名称"] || "").localeCompare(b["公司名称"] || "", "zh-Hans-CN"),
+    }[recSort]);
+  const box = $("#rectable"); box.replaceChildren();
+  const pager = $("#recpager"); pager.replaceChildren();
+  if (!list.length) {
+    box.append(el("div", "empty", (q || recStatus || recIndustry) ? "没有匹配的记录" : "暂无记录"));
+    pager.append(el("span", "pginfo", "共 0 条"));
+    return;
+  }
+  // 分页切片
+  const pages = Math.max(1, Math.ceil(list.length / recSize));
+  if (recPage > pages) recPage = pages;
+  if (recPage < 1) recPage = 1;
+  const view = list.slice((recPage - 1) * recSize, recPage * recSize);
+  const t = el("table", "rec");
+  const thead = el("thead"), head = el("tr");
+  const TH = [["公司 / 岗位", ""], ["状态", ""], ["状态备注", ""], ["投递日期", ""], ["测评", "var(--cyan)"],
+              ["笔试", "var(--orange)"], ["面试", "var(--purple)"], ["网申", ""], ["", ""]];
+  for (const [h, c] of TH) {
+    const th = el("th", null, h);
+    if (c) th.style.color = c;
+    if (h === "投递日期") {          // 表头点按：只在 RSORTS 已有的两个日期排序间切换
+      th.classList.add("th-sort");
+      if (recSort === "date_desc" || recSort === "date_asc") th.classList.add("on");
+      if (recSort === "date_asc") th.classList.add("asc");
+      th.title = "点击切换投递日期排序";
+      th.addEventListener("click", () => {
+        recSort = recSort === "date_desc" ? "date_asc" : "date_desc";
+        recPage = 1;
+        const ss = $("#rec-sort"); if (ss) ss.value = recSort;
+        try { localStorage.setItem("kb.recsort", recSort); } catch (e) {}
+        renderRecords();
+      });
+    }
+    head.append(th);
+  }
+  thead.append(head); t.append(thead);
+  const tb = el("tbody");
+  for (const r of view) {
+    const tr = el("tr", r["投递状态"] === "终止" ? "rowterm" : "");
+    const co = el("td");
+    co.append(el("span", "co", r["公司名称"] || "未知"));
+    if (r["岗位名称"]) co.append(document.createTextNode(" "), el("span", "po", "· " + r["岗位名称"]));
+    tr.append(co);
+    const std = el("td");
+    const sel = el("select", "stsel");
+    sel.title = "点击修改投递状态";
+    for (const s of STATUS) {
+      const o = el("option", null, s);
+      o.value = s;
+      if (s === r["投递状态"]) o.selected = true;
+      sel.append(o);
+    }
+    sel.style.color = SCOL[r["投递状态"]] || "var(--text)";
+    sel.addEventListener("change", () => {
+      const oldv = r["投递状态"];
+      r["投递状态"] = sel.value; render();                      // 乐观
+      apiSetStatus(r.id, sel.value)
+        .catch(err => { r["投递状态"] = oldv; render(); toast("保存失败：" + err.message); });
+    });
+    std.append(sel); tr.append(std);
+    const noteTd = el("td");
+    const note = r["状态备注"] || "";
+    const tReason = r["终止原因"] || "";
+    if (note) {                                                 // 有备注优先显示备注，终止原因进悬停
+      const sp = el("span", "dim trunc", note);
+      sp.title = tReason ? note + " ｜ 终止原因：" + tReason : note;
+      noteTd.append(sp);
+    } else if (tReason) {                                       // 无备注时显示终止原因（2026-09-25 定版）
+      noteTd.title = "终止原因：" + tReason;
+      noteTd.append(el("span", "dim", "终止："), el("span", "trunc", tReason));
+    } else noteTd.append(el("span", "dim", "—"));
+    tr.append(noteTd);
+    const dd = pd(r["投递日期"]);
+    tr.append(el("td", null, dd ? fD(dd) : "—"));
+    // 测评/笔试/面试 三列：各自最近一场的 时间 + 该场链接（分开记、分开跳）
+    for (const typ of ["测评", "笔试", "面试"]) {
+      const td = el("td");
+      const e = (perType[r.id] || {})[typ];
+      if (!e) { td.append(el("span", "dim", "—")); tr.append(td); continue; }
+      if (examWaived(e.rowRef)) {
+        td.append(el("span", "dim", "已放弃"));
+        tr.append(td); continue;
+      }
+      const txt = typ === "面试"
+        ? (e.hasEnd ? (fD(e.d) + " " + hm(e.d)) : fD(e.d))
+        : (e.dlTime ? (fD(e.dl) + " " + hm(e.dl)) : fD(e.dl)) + " 截止";
+      if (e.url) {
+        const a = el("a", "rlink", txt + " ↗");
+        a.href = e.url; a.target = "_blank"; a.rel = "noopener";
+        a.style.color = LC[typ];
+        a.title = "该志愿最近一场" + typ + "的" + (typ === "面试" ? "场次时间"
+          : "截止时间") + (e.end && e.end > e.d
+          ? "（窗口 " + fD(e.d) + " " + hm(e.d) + " → " + fD(e.end) + " " + hm(e.end) + "）"
+          : (typ !== "面试" && !e.hasEnd ? "（无截止，按收信+3天估算）" : ""))
+          + (e.来源 ? "（" + e.来源 + "）" : "") + "，点开考试链接";
+        td.append(a);
+      } else {
+        td.append(el("span", "dim", txt));
+        td.title = "该场" + typ + "没有链接（点 ✎ 可补）";
+      }
+      const past = (typ === "面试" ? (e.end || e.d) : e.dl) < day0(new Date());  // 已过期未完成=✗ 未完成=□ 完成=✓
+      const mk = el("span", "emark" + (e.done ? " ok" : past ? " miss" : ""),
+                    e.done ? " ✓" : past ? " ✗" : " □");
+      mk.title = e.done ? "已完成" : past ? "已过期未完成" : "未完成（未过期）";
+      td.append(mk);
+      tr.append(td);
+    }
+    const ap = el("td");
+    if (r["网申链接"]) {
+      const a = el("a", "rlink", "网申↗");
+      a.href = r["网申链接"]; a.target = "_blank"; a.rel = "noopener";
+      ap.append(a);
+    } else ap.append(el("span", "dim", "—"));
+    tr.append(ap);
+    const op = el("td");
+    const ebtn = el("button", "opbtn");
+    ebtn.type = "button"; ebtn.title = "编辑志愿 / 管理考试安排"; ebtn.setAttribute("aria-label", "编辑");
+    const NS = "http://www.w3.org/2000/svg";
+    const psvg = document.createElementNS(NS, "svg");
+    psvg.setAttribute("viewBox", "0 0 24 24");
+    psvg.setAttribute("width", "14"); psvg.setAttribute("height", "14");
+    psvg.setAttribute("fill", "none"); psvg.setAttribute("stroke", "currentColor"); psvg.setAttribute("stroke-width", "1.7");
+    psvg.setAttribute("stroke-linecap", "round"); psvg.setAttribute("stroke-linejoin", "round");
+    psvg.setAttribute("aria-hidden", "true");
+    const ppath = document.createElementNS(NS, "path");
+    ppath.setAttribute("d", "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z");
+    psvg.append(ppath); ebtn.append(psvg);
+    ebtn.addEventListener("click", () => {
+      const nx = tr.nextSibling;
+      if (nx && nx.classList && nx.classList.contains("editrow")) { nx.remove(); ebtn.classList.remove("on"); openEditId = null; return; }
+      box.querySelectorAll("tr.editrow").forEach(x => x.remove());
+      tb.querySelectorAll(".opbtn.on").forEach(x => x.classList.remove("on"));
+      tb.insertBefore(buildRecordEditor(r), tr.nextSibling);
+      ebtn.classList.add("on");
+      openEditId = r.id;
+    });
+    op.append(ebtn);
+    tr.append(op);
+    tb.append(tr);
+    if (openEditId === r.id) { tb.insertBefore(buildRecordEditor(r), tr.nextSibling); ebtn.classList.add("on"); }
+  }
+  t.append(tb); box.append(t);
+  /* —— 分页条 —— */
+  pager.append(el("span", "pginfo", "共 " + list.length + " 条 · 第 " + recPage + "/" + pages + " 页"));
+  const sizeSel = el("select");
+  sizeSel.title = "每页条数";
+  for (const s of [10, 20, 50]) {
+    const o = el("option", null, s + " 条/页");
+    o.value = s;
+    if (s === recSize) o.selected = true;
+    sizeSel.append(o);
+  }
+  sizeSel.addEventListener("change", () => {
+    recSize = parseInt(sizeSel.value, 10); recPage = 1;
+    try { localStorage.setItem("kb.recsize", String(recSize)); } catch (e) {}
+    renderRecords();
+  });
+  const prev = el("button", "pgbtn", "‹ 上一页");
+  prev.type = "button"; prev.disabled = recPage <= 1;
+  prev.addEventListener("click", () => { recPage--; renderRecords(); });
+  const next = el("button", "pgbtn", "下一页 ›");
+  next.type = "button"; next.disabled = recPage >= pages;
+  next.addEventListener("click", () => { recPage++; renderRecords(); });
+  const jump = el("input", "pgjump");
+  jump.type = "number"; jump.min = 1; jump.max = String(pages);
+  jump.placeholder = "页码"; jump.title = "输入页码，回车或失焦跳转";
+  const doJump = () => {
+    const n = parseInt(jump.value, 10);
+    if (!Number.isFinite(n)) return;                   // 非法值忽略
+    recPage = Math.min(pages, Math.max(1, n));          // 超出范围自动夹紧
+    renderRecords();
+  };
+  jump.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); doJump(); } });
+  jump.addEventListener("blur", doJump);
+  pager.append(sizeSel, prev, next, jump);
+}
+
+/* ---- 行内编辑器：志愿字段 + 该志愿的考试安排（手动加 / 改期） ---- */
+const dtLocal = d => d ? d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate())
+  + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes()) : "";
+function afInput(label, val, opts) {
+  const w = el("label", "af");
+  w.append(document.createTextNode(label));
+  const i = opts && opts.select ? el("select") : el("input");
+  if (!(opts && opts.select)) { i.type = opts && opts.type ? opts.type : "text"; i.value = val == null ? "" : val; }
+  if (opts && opts.ph) i.placeholder = opts.ph;
+  if (opts && opts.wide) i.style.minWidth = "230px";
+  w.append(i);
+  return { w, i };
+}
+function buildRecordEditor(r) {
+  const tr = el("tr", "editrow");
+  const td = el("td");
+  td.colSpan = 9;
+  /* —— 志愿字段 —— */
+  const f1 = el("div", "afrow");
+  const fPos = afInput("岗位名称", r["岗位名称"], { ph: "一个岗位=一条志愿" });
+  const fInd = afInput("行业", r["行业"]);
+  const fUrl = afInput("网申链接", r["网申链接"], { ph: "https://…", wide: true });
+  const fNote = afInput("状态备注", r["状态备注"], { ph: "如：二面通过等三面 · 终止就写原因", wide: true });
+  const fMemo = afInput("注意事项", r["注意事项"], { ph: "如：需摄像头监控", wide: true });
+  const fDate = afInput("投递日期", r["投递日期"] ? String(r["投递日期"]).slice(0, 10) : "", { type: "date" });
+  const fCo = afInput("公司名称", r["公司名称"], { ph: "与邮件/官网称呼一致，影响邮件匹配" });
+  /* —— 自动保存：停止输入 0.9s 后合并保存；日期改完即存。岗位重名会被独立键拦下 —— */
+  const st = el("span", "dim", "● 自动保存");
+  st.style.cssText = "font-size:11px;color:var(--faint);align-self:flex-end;padding-bottom:8px";
+  const fields = [["投递日期", fDate.i], ["公司名称", fCo.i], ["岗位名称", fPos.i], ["行业", fInd.i],
+                  ["网申链接", fUrl.i], ["状态备注", fNote.i], ["注意事项", fMemo.i]];
+  const dirty = {};                       // 字段名 -> 新值（合并一次请求）
+  let timer = null, saving = false;
+  const flush = async () => {
+    if (saving || !Object.keys(dirty).length) return;
+    saving = true;
+    const upd = { id: r.id, ...dirty };
+    const posUpd = "岗位名称" in dirty;
+    const newPos = dirty["岗位名称"];
+    Object.keys(dirty).forEach(k => delete dirty[k]);
+    try {
+      if ((posUpd || "公司名称" in upd) && data && data["记录"]) {   // 独立键保护：公司+岗位 不允许撞车
+        const newCo = ("公司名称" in upd ? upd["公司名称"] : r["公司名称"] || "").trim();
+        const newPos2 = (upd["岗位名称"] || "").trim();
+        const clash = data["记录"].some(o => o.id !== r.id
+          && (o["公司名称"] || "").trim() === newCo
+          && (o["岗位名称"] || "").trim() === newPos2);
+        if (clash) {
+          fCo.i.value = r["公司名称"] || "";
+          fPos.i.value = r["岗位名称"] || "";
+          st.textContent = "⚠ 公司+岗位与已有志愿重名"; st.style.color = "var(--red)";
+          toast("独立键冲突：" + newCo + "·" + (newPos2 || "（无岗位）") + " 已存在，未保存");
+          return;                                        // dirty 已清空=放弃本次
+        }
+      }
+      st.textContent = "… 保存中"; st.style.color = "var(--faint)";
+      await apiPost("api/update_record", upd);
+      Object.assign(r, Object.fromEntries(Object.entries(upd).filter(([k]) => k !== "id")));
+      if (posUpd) r["岗位名称"] = newPos;
+      st.textContent = "✓ 已保存"; st.style.color = "var(--green)";
+      setTimeout(() => { st.textContent = "● 自动保存"; st.style.color = "var(--faint)"; }, 1600);
+    } catch (e) {
+      st.textContent = "⚠ 保存失败"; st.style.color = "var(--red)";
+      toast("自动保存失败：" + (e.message || e) + "（已暂停自动刷新，改动还在输入框里，可直接重试）");
+    } finally { saving = false; if (Object.keys(dirty).length) flush(); }
+  };
+  const mark = name => { dirty[name] = fields.find(f => f[0] === name)[1].value;
+    st.textContent = "… 编辑中"; st.style.color = "var(--dim)";
+    clearTimeout(timer); timer = setTimeout(flush, 900); };
+  for (const [name, input] of fields) {
+    input.addEventListener("input", () => mark(name));
+    input.addEventListener("change", () => { mark(name); clearTimeout(timer); flush(); });
+  }
+  f1.append(fCo.w, fDate.w, fPos.w, fInd.w, fUrl.w, fNote.w, fMemo.w, st);
+  const capTop = el("div", "dim", "志愿信息（改完自动保存）· 考试安排在下方管理");
+  capTop.style.cssText = "font-size:11.5px;margin-bottom:7px";
+  td.append(capTop);
+  td.append(f1);
+  /* —— 考试安排 —— */
+  const cap = el("div", "afrow");
+  cap.style.marginTop = "12px";
+  cap.append(el("span", "dim", "考试安排（电话邀约、改期都在这里记）· 选开始自动补结束（笔试 2h/其余 1h）并自动保存"));
+  td.append(cap);
+  const myExams = ((data && data["考试"]) || [])
+    .filter(x => x["记录"] === r.id)
+    .sort((a, b) => (pd(a["开始时间"]) || 0) - (pd(b["开始时间"]) || 0));
+  for (const x of myExams) {
+    const fr = el("div", "afrow"); fr.style.marginBottom = "6px";
+    const fT2 = afInput("类型", x["考试类型"] || "笔试", { select: true });
+    fT2.i.title = "考试类型（可改）";
+    for (const tp of ["测评", "笔试", "面试", "其他事项"]) {
+      const o = el("option", null, tp); o.value = tp;
+      if (tp === (x["考试类型"] || "笔试")) o.selected = true;
+      fT2.i.append(o);
+    }
+    fT2.i.addEventListener("change", async () => {
+      try { await apiPost("api/update_exam", { id: x.id, "考试类型": fT2.i.value });
+        toast("类型已改为「" + fT2.i.value + "」"); load(); }
+      catch (e) { toast("改类型失败：" + (e.message || e)); }
+    });
+    const ckW = el("label", "af"); ckW.style.minWidth = "0";
+    ckW.append(document.createTextNode("完成"));
+    const ckBox = el("div"); ckBox.style.cssText = "height:29px;display:flex;align-items:center";
+    const ck = document.createElement("input");
+    ck.type = "checkbox"; ck.className = "ck"; ck.checked = x["完成"] === true;
+    ck.title = "完成（勾选后不再出现在近期安排/日历）";
+    ck.style.cssText = "width:17px;height:17px;min-width:0;padding:0;margin:0 0 0 2px;accent-color:var(--green);cursor:pointer";
+    ckBox.append(ck); ckW.append(ckBox);
+    ck.addEventListener("change", () => {
+      const oldv = x["完成"] === true, oldt = x["完成时间"], nv = ck.checked;
+      markExamDone(x, nv);
+      apiToggleExam(x.id, nv)
+        .then(() => { toast(nv ? "已标记完成" : "已撤销完成"); load(); })
+        .catch(err => { ck.checked = !nv; markExamDone(x, oldv); x["完成时间"] = oldt; toast("保存失败：" + err.message); });
+    });
+    let wvW = null;
+    if (x["放弃"] === true) {                      // 已放弃的行：只显示「恢复」入口
+      wvW = el("label", "af"); wvW.style.minWidth = "0";
+      wvW.append(document.createTextNode("恢复"));
+      const wv = document.createElement("input");
+      wv.type = "checkbox"; wv.checked = false;
+      wv.title = "取消放弃（恢复为待完成）";
+      wv.style.cssText = "width:17px;height:17px;min-width:0;padding:0;margin:0 0 0 2px;accent-color:var(--green);cursor:pointer";
+      wvW.append(wv);
+      wv.addEventListener("change", () => {
+        x["放弃"] = false; x["完成"] = false; render();
+        apiPost("api/update_exam", { id: x.id, "放弃": false, "完成": false })
+          .then(() => { toast("已恢复为待完成"); load(); })
+          .catch(err => { wv.checked = true; x["放弃"] = true; toast("保存失败：" + err.message); });
+      });
+    }
+    const fS = afInput("开始", dtLocal(pd(x["开始时间"])), { type: "datetime-local" });
+    const fE = afInput("结束", dtLocal(pd(x["结束时间"])), { type: "datetime-local" });
+    const fL = afInput("链接", x["考试链接"] || "", { ph: "https://…", wide: true });
+    const sv = el("button", "btn sm", "保存");
+    sv.type = "button";
+    sv.addEventListener("click", async () => {
+      sv.disabled = true;
+      try {
+        // 只改开始导致 结束<=开始 时，按原时长自动平移结束（无原时长则留空），避免改期被拦
+        let outEnd = fE.i.value;
+        const ns = fS.i.value ? new Date(fS.i.value) : null;
+        const ne = fE.i.value ? new Date(fE.i.value) : null;
+        if (ns && ne && ne <= ns) {
+          const os = pd(x["开始时间"]), oe = pd(x["结束时间"]);
+          outEnd = (os && oe && oe > os) ? dtLocal(new Date(ns.getTime() + (oe - os))) : "";
+        }
+        await apiPost("api/update_exam", { id: x.id, "开始时间": fS.i.value,
+          "结束时间": outEnd, "考试链接": fL.i.value });
+        toast("考试已更新"); load();
+      } catch (e) { toast("保存失败：" + (e.message || e)); sv.disabled = false; }
+    });
+    const del = el("button", "btn sm danger", "删");
+    del.type = "button"; del.title = "删除这行考试安排";
+    del.addEventListener("click", async () => {
+      if (!confirm("删除这行考试安排？（不可恢复）")) return;
+      del.disabled = true;
+      try { await apiPost("api/delete_exam", { id: x.id }); toast("已删除"); load(); }
+      catch (e) { toast("删除失败：" + (e.message || e)); del.disabled = false; }
+    });
+    if (wvW) fr.append(fT2.w, ckW, wvW, fS.w, fE.w, fL.w, sv, del);
+    else fr.append(fT2.w, ckW, fS.w, fE.w, fL.w, sv, del);
+    td.append(fr);
+  }
+  /* —— 新一场考试 —— */
+  const nr = el("div", "afrow");
+  const fT = afInput("类型", "笔试", { select: true });
+  for (const tp of ["测评", "笔试", "面试"]) {
+    const o = el("option", null, tp);
+    o.value = tp;
+    if (tp === "笔试") o.selected = true;
+    fT.i.append(o);
+  }
+  const nS = afInput("开始 *", "", { type: "datetime-local" });
+  const nE = afInput("结束", "", { type: "datetime-local" });
+  const nL = afInput("链接", "", { ph: "https://…（可选）", wide: true });
+  const add = el("button", "btn sm", "＋ 加一场考试");
+  add.type = "button";
+  const DUR = { "笔试": 2, "测评": 1, "面试": 1, "其他事项": 1 };   // 默认时长(小时)，结束可手改
+  let endTouched = false, autoEnd = "", autoT = null;
+  nE.i.addEventListener("input", () => { endTouched = nE.i.value !== autoEnd; });
+  const fillEnd = () => {              // 选了开始 → 按类型自动补结束（未手改过结束才补）
+    if (endTouched || !nS.i.value) return;
+    const d = new Date(nS.i.value); d.setHours(d.getHours() + (DUR[fT.i.value] || 1));
+    autoEnd = dtLocal(d); nE.i.value = autoEnd;
+  };
+  const saveNew = async () => {
+    clearTimeout(autoT);
+    if (!nS.i.value || add.disabled) return;
+    add.disabled = true;
+    try {
+      await apiPost("api/add_exam", { "记录": r.id, "考试类型": fT.i.value,
+        "开始时间": nS.i.value, "结束时间": nE.i.value, "考试链接": nL.i.value });
+      toast("已加一场考试"); openEditId = r.id; load();
+    } catch (e) { toast("添加失败：" + (e.message || e)); add.disabled = false; }
+  };
+  nS.i.addEventListener("change", () => { fillEnd(); clearTimeout(autoT); autoT = setTimeout(saveNew, 900); });
+  nE.i.addEventListener("change", () => { clearTimeout(autoT); autoT = setTimeout(saveNew, 900); });
+  fT.i.addEventListener("change", () => {      // 换类型：重算默认时长 + 重排未触发的自动保存
+    fillEnd();
+    if (nS.i.value) { clearTimeout(autoT); autoT = setTimeout(saveNew, 900); }
+  });
+  add.addEventListener("click", saveNew);     // 按钮保留：立即保存（不等 0.9s 防抖）
+  nr.append(fT.w, nS.w, nE.w, nL.w, add);
+  td.append(nr);
+  /* —— 删除志愿（2026-10-02 新增）：建错的公司此前只能改「终止」，永远留在列表与漏斗里 —— */
+  const delRow = el("div", "afrow");
+  delRow.style.marginTop = "14px";
+  const delRec = el("button", "btn sm danger", "删除此志愿");
+  delRec.type = "button";
+  delRec.addEventListener("click", async () => {
+    const nExam = myExams.length;
+    const nMail = ((data && data["存档数"]) || {})[r["公司名称"]] || 0;
+    const label = r["公司名称"] + (r["岗位名称"] ? " · " + r["岗位名称"] : "");
+    if (!confirm("删除「" + label + "」？\n将同时删除其名下 " + nExam + " 场考试安排和 " + nMail
+      + " 封邮件存档，不可恢复。\n\n（只是没进展的话，建议改状态为「终止」而不是删除）")) return;
+    delRec.disabled = true;
+    try {
+      await apiPost("api/delete_record", { id: r.id });
+      toast("已删除志愿「" + r["公司名称"] + "」");
+      openEditId = null;
+      load();
+    } catch (e) {
+      toast("删除失败：" + (e.message || e));
+      delRec.disabled = false;
+    }
+  });
+  delRow.append(delRec, el("span", "hint", "建错的公司用它清理；同名邮件之后会重新进横幅"));
+  td.append(delRow);
+  tr.append(td);
+  return tr;
+}
+
+$("#recsearch").addEventListener("input", e => { recQ = e.target.value; recPage = 1; renderRecords(); });
+$("#addbtn").addEventListener("click", () => $("#afill").classList.toggle("show"));
+for (const s of STATUS) {
+  const o = el("option", null, s);
+  o.value = s;
+  if (s === "简历评估") o.selected = true;   // 新增投递默认=简历评估（刚投完等结果）
+  $("#af-st").append(o);
+}
+{ const t = new Date(); $("#af-date").value = t.getFullYear() + "-" + pad(t.getMonth() + 1) + "-" + pad(t.getDate()); }
+/* 新增表单：公司名称为空时禁用保存；取消只收起、不清空已填内容 */
+$("#afcancel").addEventListener("click", () => $("#afill").classList.remove("show"));
+const afSyncSave = () => { $("#afsave").disabled = !$("#af-co").value.trim(); };
+$("#af-co").addEventListener("input", afSyncSave);
+afSyncSave();
+$("#afsave").addEventListener("click", async () => {
+  const btn = $("#afsave");
+  const body = { "公司名称": $("#af-co").value, "岗位名称": $("#af-pos").value,
+                 "行业": $("#af-ind").value, "网申链接": $("#af-url").value, "投递状态": $("#af-st").value,
+                 "投递日期": $("#af-date").value };
+  btn.disabled = true;
+  try {
+    await apiAddRecord(body);
+    toast("已新增：" + (body["公司名称"] || "").trim());
+    for (const id of ["af-co", "af-pos", "af-ind", "af-url"]) $("#" + id).value = "";
+    $("#afill").classList.remove("show");
+    load();
+  } catch (e) {
+    toast("新增失败：" + (e.message || e));
+  }
+  btn.disabled = !$("#af-co").value.trim();
+});
+
+/* ================= 字体缩放（A+/A-，记忆；默认 110%） ================= */
+const ZL = [0.85, 1, 1.1, 1.25, 1.4];
+const ZDEFAULT = 1.1;
+let zi = ZL.indexOf(ZDEFAULT);
+try {
+  const z = parseFloat(localStorage.getItem("kb.zoom"));
+  if (ZL.includes(z)) zi = ZL.indexOf(z);
+} catch (e) {}
+/* 顶栏实高 → --tbh；视口高 --vp-h、页脚高 --foot-h（均为布局px，除以 body.zoom 换算）：
+   任务页视口仪表盘按此拼高度，缩放/改窗口/页脚变化都重新量 */
+function syncTb() {
+  const t = document.getElementById("pagetools");
+  if (t) document.documentElement.style.setProperty("--tbh", t.offsetHeight + "px");
+  const z = parseFloat(document.body.style.zoom) || 1;
+  document.documentElement.style.setProperty("--vp-h", Math.round(innerHeight / z) + "px");
+  const f = document.querySelector("footer");
+  if (f) document.documentElement.style.setProperty("--foot-h", f.offsetHeight + "px");
+}
+function applyZoom() {
+  document.body.style.zoom = ZL[zi];
+  const pct = Math.round(ZL[zi] * 100) + "%";
+  $("#zin").disabled = zi >= ZL.length - 1;
+  $("#zout").disabled = zi <= 0;
+  $("#zin").title = "字体放大（当前 " + pct + "，双击复位）";
+  $("#zout").title = "字体缩小（当前 " + pct + "，双击复位）";
+  try { localStorage.setItem("kb.zoom", String(ZL[zi])); } catch (e) {}
+  syncTb();
+}
+addEventListener("resize", syncTb);
+$("#zin").addEventListener("click", () => { zi = Math.min(ZL.length - 1, zi + 1); applyZoom(); toast("字体 " + Math.round(ZL[zi] * 100) + "%"); });
+$("#zout").addEventListener("click", () => { zi = Math.max(0, zi - 1); applyZoom(); toast("字体 " + Math.round(ZL[zi] * 100) + "%"); });
+$("#zin").addEventListener("dblclick", () => { zi = ZL.indexOf(ZDEFAULT); applyZoom(); toast("字体已复位 " + Math.round(ZL[zi] * 100) + "%"); });
+$("#zout").addEventListener("dblclick", () => { zi = ZL.indexOf(ZDEFAULT); applyZoom(); toast("字体已复位 " + Math.round(ZL[zi] * 100) + "%"); });
+applyZoom();
+
+/* ================= 立即拉邮件（/api/sync_now + /api/sync_status，2026-10-02） =================
+   修复最大冷启动断点：绑完邮箱要干等 2 小时或去开命令行，才知道有没有真的收到。
+   后台子进程跑 mail.py --sync，与定时链互不冲突；前端轮询状态条展示结果。 */
+let syncing = false;
+async function pollSync() {
+  try {
+    const r = await fetch("api/sync_status", { cache: "no-store" });
+    const j = await r.json();
+    if (j && j.running) { setTimeout(pollSync, 3000); return; }
+    if (j && j.ok_last === false) {
+      const tail = String(j["输出"] || "").split("\n").map(s => s.trim()).filter(Boolean).pop() || "";
+      toast("同步未成功：" + friendlyNetError(tail));
+    } else if (j && j.finished) {
+      toast("邮件同步完成，看板已刷新");
+    }
+  } catch (e) { /* 状态查询失败不阻塞收尾 */ }
+  syncing = false;
+  const btn = $("#syncnow");
+  btn.disabled = false; btn.textContent = "拉邮件";
+  load();
+}
+$("#syncnow").addEventListener("click", async () => {
+  const btn = $("#syncnow");
+  if (syncing) { toast("已在同步中，请稍候…"); return; }
+  syncing = true;
+  btn.disabled = true; btn.textContent = "同步中…";
+  try {
+    await apiPost("api/sync_now", {});
+    toast("已开始拉取邮件，完成后自动刷新（一般几秒到一两分钟）");
+    pollSync();
+  } catch (e) {
+    toast("触发同步失败：" + friendlyNetError(e.message || e));
+    syncing = false;
+    btn.disabled = false; btn.textContent = "拉邮件";
+  }
+});
+
+/* ================= 外观（自定义 logo / 站点名称，2026-10-04） ================= */
+const BRAND_DEFAULT_LOGO = "/assets/qiuzhao-ruyi-autumn-offer-logo-v2-96.png";
+function applyBranding(j) {
+  const name = (j && j.站点名称) || "秋招中台";
+  const custom = !!(j && j.logo);
+  const logo = custom ? ("api/branding/logo?v=" + (j.更新时间 || 0)) : BRAND_DEFAULT_LOGO;
+  $("#brandName").textContent = name;
+  $("#brandFoot").textContent = name;
+  document.title = name + " · 实时看板";
+  $("#logoImg").src = logo;
+  $("#br-preview").src = logo;
+  const fav = document.querySelector('link[rel="icon"]');
+  if (fav) {
+    fav.href = logo;
+    fav.type = custom ? (logo.includes(".svg") ? "image/svg+xml" : "image/png") : "image/png";
+  }
+  $("#br-name").value = (j && j.自定义名) ? j.站点名称 : "";
+}
+async function loadBranding() {
+  try {
+    const r = await fetch("api/branding", { cache: "no-store" });
+    const j = await r.json();
+    if (j && j.ok) applyBranding(j);
+  } catch (e) { /* 外观加载失败不影响主功能，保持默认 */ }
+}
+$("#br-pick").addEventListener("click", () => $("#br-file").click());
+$("#br-file").addEventListener("change", async () => {
+  const f = $("#br-file").files[0];
+  $("#br-file").value = "";   // 立即清空：同一张图改完还能重选
+  if (!f) return;
+  if (f.size > 2 * 1024 * 1024) { setHint("#br-st", "✗ 图片超过 2MB，压缩后再传", "var(--red)"); return; }
+  setHint("#br-st", "… 上传中");
+  try {
+    const data = await new Promise((res, rej) => {
+      const rd = new FileReader();
+      rd.onload = () => res(String(rd.result).split(",")[1] || "");
+      rd.onerror = () => rej(new Error("读取文件失败"));
+      rd.readAsDataURL(f);
+    });
+    await apiPost("api/branding", { 文件名: f.name, 数据: data, 站点名称: $("#br-name").value });
+    setHint("#br-st", "✓ logo 已更新", "var(--green)");
+    toast("logo 已更新");
+    loadBranding();
+  } catch (e) { setHint("#br-st", "✗ " + (e.message || e), "var(--red)"); }
+});
+$("#br-save").addEventListener("click", async () => {
+  setHint("#br-st", "… 保存中");
+  try {
+    await apiPost("api/branding", { 站点名称: $("#br-name").value });
+    setHint("#br-st", "✓ 已保存", "var(--green)");
+    toast("外观已保存");
+    loadBranding();
+  } catch (e) { setHint("#br-st", "✗ " + (e.message || e), "var(--red)"); }
+});
+$("#br-reset").addEventListener("click", async () => {
+  setHint("#br-st", "… 恢复中");
+  try {
+    await apiPost("api/branding/reset", {});
+    setHint("#br-st", "✓ 已恢复默认外观", "var(--green)");
+    toast("已恢复默认外观");
+    loadBranding();
+  } catch (e) { setHint("#br-st", "✗ " + (e.message || e), "var(--red)"); }
+});
+
+/* ================= 启动与自动刷新 ================= */
+applyTheme(document.documentElement.dataset.theme || "dark");
+drawRangeBtns();
+drawRRangeBtns();
+function setAuto(on) {
+  if (timer) { clearInterval(timer); timer = null; }
+  if (on) timer = setInterval(() => {
+    /* 行内编辑展开期间暂停自动刷新（2026-10-02 修）：30 秒重渲染会清空输入框，
+       而保存失败提示写着“改动还在输入框里”——界面不能自己推翻自己的承诺 */
+    if (typeof openEditId === "undefined" || openEditId === null) load();
+  }, 30000);
+}
+$("#auto").addEventListener("change", e => setAuto(e.target.checked));
+$("#refresh").addEventListener("click", load);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && $("#auto").checked) load();
+});
+setAuto(true);
+load();
+loadSettings();   // 启动即探测邮箱配置：未配置时显示引导横幅（设置页也会拉取）
+loadBranding();   // 启动即应用自定义外观（logo / 站点名称 / favicon）
+</script>
+</body>
+</html>

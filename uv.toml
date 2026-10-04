@@ -1,0 +1,6 @@
+# uv 镜像配置：默认走清华源（国内最快的大多数场景）。
+# 启动器每次会自动测速选择最快源并通过 UV_DEFAULT_INDEX 覆盖本配置；
+# 手动运行 uv 时若想换源，改下面 url 或删掉本文件回退官方源。
+[[index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true

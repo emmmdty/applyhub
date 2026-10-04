@@ -1,0 +1,9 @@
+[project]
+name = "qiuzhao-zhongtai"
+version = "1.1.0"
+description = "秋招中台 · 校招投递本地中台（IMAP 收件 → SQLite → 实时看板 → Obsidian 同步）"
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.uv]
+package = false
