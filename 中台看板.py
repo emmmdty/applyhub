@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""秋招中台 · 实时看板服务（纯 stdlib，零第三方依赖）
+"""投递中台 · 实时看板服务（纯 stdlib，零第三方依赖）
 
 用法：
     python3 中台看板.py [--demo] [--open] [端口]   # 默认端口取 config.json（无则 8790）
@@ -58,7 +58,7 @@ BRAND_TYPES = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
                "webp": "image/webp", "svg": "image/svg+xml"}
 BRAND_MAX = 2 * 1024 * 1024          # 图片解码后上限 2MB
 BRAND_NAME_MAX = 30
-BRAND_DEFAULT_NAME = "秋招中台"       # 站点名留空时的回落值
+BRAND_DEFAULT_NAME = "投递中台"       # 站点名留空时的回落值
 
 
 def _brand_validate(ext, data):
@@ -1415,7 +1415,7 @@ def main():
     import grist_store as _gprint
     if os.environ.get("SQLITE_PATH"):
         print(f"[沙盒模式] 数据库: {_gprint.SQLITE_PATH}", flush=True)
-    print(f"秋招中台看板 → http://127.0.0.1:{port} （仅本机访问；改端口：设置页或 config.json）  Ctrl+C 退出", flush=True)
+    print(f"投递中台看板 → http://127.0.0.1:{port} （仅本机访问；改端口：设置页或 config.json）  Ctrl+C 退出", flush=True)
     if "--open" in argv:   # 双击启动器：就绪后自动开浏览器（2026-09-30，配合 启动中台.bat/.sh）
         import webbrowser
         url = f"http://127.0.0.1:{port}/" + ("#settings" if _needs_setup() else "")

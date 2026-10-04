@@ -1,7 +1,7 @@
 [project]
-name = "qiuzhao-zhongtai"
+name = "applyhub"
 version = "1.1.0"
-description = "秋招中台 · 校招投递本地中台（IMAP 收件 → SQLite → 实时看板 → Obsidian 同步）"
+description = "投递中台 ApplyHub · 网申投递本地管理台（秋招/春招/实习通用）：IMAP 收件 → SQLite → 实时看板 → Obsidian 同步"
 requires-python = ">=3.9"
 dependencies = []
 

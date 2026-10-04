@@ -1,4 +1,4 @@
-# 秋招中台（SQLite 绿色版）
+# 投递中台（SQLite 绿色版）
 
 ![License](https://img.shields.io/badge/License-MIT-green) ![Python](https://img.shields.io/badge/Python-3.9%2B-blue) ![依赖](https://img.shields.io/badge/第三方依赖-零-success) ![平台](https://img.shields.io/badge/Windows-开箱即用-brightgreen)
 
@@ -99,7 +99,7 @@ mail.py ──► 中台.sqlite ◄──► 中台看板.py ──► 看板.ht
 **Windows（纯 Windows，无需 WSL）**：用任务计划程序每 2 小时执行一条命令：
 
 ```
-cmd /c "cd /d D:\你的目录\秋招中台 && python mail.py --sync && python sync.py"
+cmd /c "cd /d D:\你的目录\投递中台 && python mail.py --sync && python sync.py"
 ```
 
 （或创建 `run-sync.bat` 内容为上面两行命令，计划任务指向它。`python` 换成实际解释器，如 `py -3`。）
@@ -134,7 +134,7 @@ cmd /c "cd /d D:\你的目录\秋招中台 && python mail.py --sync && python sy
 ## 分发给别人
 
 ```bash
-python3 打包分发.py        # 生成 dist/秋招中台-绿色版-YYYYMMDD.zip
+python3 打包分发.py        # 生成 dist/投递中台-绿色版-YYYYMMDD.zip
 ```
 
 包里只含代码/文档/示例配置/双击启动器（隐私文件自动排除）。收包人：解压 → 双击 `启动中台.bat` → 浏览器自动打开 → 设置页填邮箱 → 开始用，全程不碰命令行。

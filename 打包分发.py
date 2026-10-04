@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """一键打包「绿色版」分发包（给别人用）：
 只收代码 / 文档 / 静态资源 / 示例配置，自动排除隐私与运行时文件。
-用法:  python3 打包分发.py              # 产物: dist/秋招中台-绿色版-YYYYMMDD.zip
-       python3 打包分发.py 1.1.0        # 产物: dist/秋招中台-v1.1.0.zip（语义版本，供 Release）
+用法:  python3 打包分发.py              # 产物: dist/投递中台-绿色版-YYYYMMDD.zip
+       python3 打包分发.py 1.1.0        # 产物: dist/投递中台-v1.1.0.zip（语义版本，供 Release）
 收包人只需: 解压 → 双击 启动中台.bat（Windows）→ 浏览器自动打开 → 「设置」页填邮箱。
 """
 import os, sys, zipfile, datetime
@@ -39,16 +39,16 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     ver = (sys.argv[1] if len(sys.argv) > 1 else "").strip().lstrip("v")
     if ver:   # 语义版本（发布 Release 用）
-        dest = os.path.join(OUT_DIR, f"秋招中台-v{ver}.zip")
+        dest = os.path.join(OUT_DIR, f"投递中台-v{ver}.zip")
     else:     # 沿用旧命名：按日期
         tag = datetime.date.today().strftime("%Y%m%d")
-        dest = os.path.join(OUT_DIR, f"秋招中台-绿色版-{tag}.zip")
+        dest = os.path.join(OUT_DIR, f"投递中台-绿色版-{tag}.zip")
     n = 0
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
         for f in FILES:
             p = os.path.join(HERE, f)
             if os.path.exists(p):
-                z.write(p, f"秋招中台/{f}")
+                z.write(p, f"ApplyHub/{f}")
                 n += 1
             else:
                 print(f"  ⚠ 清单中缺少（跳过）: {f}")
@@ -60,7 +60,7 @@ def main():
                 for fn in sorted(files):         # assets/manual/ 5 张说明书截图全部漏包，md 版说明书图文全裂）
                     if fn.lower().endswith(tuple(exts)):
                         full = os.path.join(root, fn)
-                        z.write(full, f"秋招中台/{os.path.relpath(full, HERE)}")
+                        z.write(full, f"ApplyHub/{os.path.relpath(full, HERE)}")
                         n += 1
         for d in ALL_DIRS:
             dp = os.path.join(HERE, d)
@@ -71,7 +71,7 @@ def main():
                 for fn in sorted(files):
                     full = os.path.join(root, fn)
                     rel = os.path.relpath(full, HERE)
-                    z.write(full, f"秋招中台/{rel}")
+                    z.write(full, f"ApplyHub/{rel}")
                     n += 1
     size = os.path.getsize(dest) / 1024
     print(f"✓ 已打包 {n} 个文件 → {dest}（{size:.0f} KB）")

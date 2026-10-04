@@ -1,5 +1,5 @@
 #!/bin/bash
-# 秋招中台定时链（SQLite 版）：mail.py --sync -> sync.py -> SQLite 备份滚动 -> 看板看护
+# 投递中台定时链（SQLite 版）：mail.py --sync -> sync.py -> SQLite 备份滚动 -> 看板看护
 # 由系统计划任务每 2 小时调用（Windows/macOS/Linux 配置方法见 README「自动定时同步」）。
 # 日志统一追加到 logs/last_run.log（>5MB 自动归档 .old）。
 # 端口 / 备份目录可在 config.json 里改（网页「设置」页可视化编辑）。

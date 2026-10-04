@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem("kb.theme")==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
 <link rel="icon" type="image/png" href="/assets/favicon-96.png">
-<title>秋招中台 · 实时看板</title>
+<title>投递中台 · 实时看板</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
@@ -467,6 +467,10 @@ table.rec .af{min-width:110px}
 .pophead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14.5px;font-weight:600}
 .pophead .x{cursor:pointer;color:var(--dim);padding:2px 9px;border-radius:7px;font-weight:400}
 .pophead .x:hover{color:var(--text);background:var(--card2)}
+/* 日详情浮层的左右日导航（2026-10-04）：‹ 明天 ›，跨月联动主月历 */
+.pophead .dn{cursor:pointer;color:var(--dim);padding:2px 9px;border-radius:7px;font-weight:400;display:flex;align-items:center;gap:8px}
+.pophead .dn:hover{color:var(--text);background:var(--card2)}
+.pophead .dn b{color:var(--text)}
 .popsec{font-size:12.5px;font-weight:600;margin:12px 0 7px;color:var(--dim)}
 .popsec.g{color:var(--green)} .popsec.r{color:var(--red)} .popsec.o{color:var(--orange)}
 .poprow{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);
@@ -578,7 +582,7 @@ footer{text-align:center;color:var(--faint);font-size:12px;padding:24px 28px 30p
   <div class="brand">
     <div class="logo" id="logo" aria-hidden="true"><img id="logoImg" src="/assets/qiuzhao-ruyi-autumn-offer-logo-v2-96.png" alt=""></div>
     <div class="btext">
-      <h1 id="brandName">秋招中台</h1>
+      <h1 id="brandName">投递中台</h1>
     </div>
     <button class="sidebtn" id="sidebtn" type="button" title="收起侧边栏" aria-label="收起 / 展开侧边栏">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
@@ -836,8 +840,8 @@ footer{text-align:center;color:var(--faint);font-size:12px;padding:24px 28px 30p
         <div class="afrow" style="align-items:center">
           <img id="br-preview" src="/assets/qiuzhao-ruyi-autumn-offer-logo-v2-96.png" alt="当前 logo"
                style="width:48px;height:48px;border-radius:12px;object-fit:contain;background:rgba(127,127,127,.12);flex:none">
-          <div class="af" style="flex:1;min-width:220px">站点名称（留空恢复「秋招中台」）
-            <input id="br-name" maxlength="30" placeholder="秋招中台" style="min-width:200px"></div>
+          <div class="af" style="flex:1;min-width:220px">站点名称（留空恢复「投递中台」）
+            <input id="br-name" maxlength="30" placeholder="投递中台" style="min-width:200px"></div>
         </div>
         <div class="afrow" style="margin-top:12px">
           <button class="btn sm" id="br-pick" type="button">上传 logo…</button>
@@ -856,7 +860,7 @@ footer{text-align:center;color:var(--faint);font-size:12px;padding:24px 28px 30p
   </section>
 </main>
 
-<footer><a href="说明书.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">📖 使用说明书</a> · <span id="brandFoot">秋招中台</span> · 数据本地存储 · 邮件每 2 小时自动同步</footer>
+<footer><a href="说明书.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">📖 使用说明书</a> · <span id="brandFoot">投递中台</span> · 数据本地存储 · 邮件每 2 小时自动同步</footer>
 
 <div id="toast"></div>
 
@@ -940,11 +944,12 @@ const PAGES = {
   mail: ["邮件动态", "管道抓取的最新邮件与存档情况"],
   settings: ["设置", "邮箱凭据与运行参数 · 网页里改，不用碰命令行"],
 };
+var BRAND_NAME = "投递中台";   // 当前站点名（外观自定义会覆盖；showPage/外观共用，防止切页把自定义名打回默认）
 function showPage(name) {
   if (!PAGES[name]) name = "tasks";
   for (const k of Object.keys(PAGES)) $("#page-" + k).hidden = k !== name;
   for (const a of document.querySelectorAll("#nav .navi")) a.classList.toggle("on", a.dataset.page === name);
-  document.title = PAGES[name][0] + " · 秋招中台";
+  document.title = PAGES[name][0] + " · " + BRAND_NAME;
   $("#pt-h").textContent = PAGES[name][0];
   $("#pt-sub").textContent = PAGES[name][1];
   if (name === "settings") loadSettings();
@@ -1627,13 +1632,30 @@ function renderPast(exams) {
 
 /* 当天明细浮层：只读（完成/过期未完成/未完成 + 链接） */
 function closeDayPopup() { const p = document.querySelector(".popbg"); if (p) p.remove(); }
+let dayPopDate = null;   // 日详情浮层当前锚点（‹ › 导航用）
+function navDay(n) {
+  if (!dayPopDate) return;
+  const nd = new Date(dayPopDate);
+  nd.setDate(nd.getDate() + n);
+  /* 跨月/跨年时联动翻动主月历，保证浮层与底图永远一致 */
+  if (nd.getMonth() !== dayPopDate.getMonth() || nd.getFullYear() !== dayPopDate.getFullYear()) shiftCal(n);
+  showDayPopup(nd);
+}
 function showDayPopup(d, evs) {
   closeDayPopup();
   const t0 = day0(new Date());
+  const d0 = day0(d);
+  /* 未传事件（‹ › 导航进来）→ 按目标日重算；提醒仍只留在今天，防刷屏口径与月视图一致 */
+  if (!evs) evs = calEvents(d0, t0).filter(e => day0(e.d).getTime() === d0.getTime());
+  dayPopDate = d0;
   const ov = el("div", "popbg");
   const card = el("div", "popcard");
   const head = el("div", "pophead");
-  head.append(el("b", null, fD(d) + " " + WD[d.getDay()] + (dayDiff(d, t0) === 0 ? " · 今天" : "")));
+  const nav = el("span", "dn");
+  const pv = el("span", "x", "‹"); pv.title = "前一天"; pv.onclick = () => navDay(-1);
+  const nb = el("span", "x", "›"); nb.title = "后一天"; nb.onclick = () => navDay(1);
+  nav.append(pv, el("b", null, fD(d) + " " + WD[d.getDay()] + (dayDiff(d, t0) === 0 ? " · 今天" : "")), nb);
+  head.append(nav);
   const xc = el("span", "x", "✕"); xc.onclick = closeDayPopup;
   head.append(xc);
   card.append(head);
@@ -3067,8 +3089,9 @@ $("#syncnow").addEventListener("click", async () => {
 /* ================= 外观（自定义 logo / 站点名称，2026-10-04） ================= */
 const BRAND_DEFAULT_LOGO = "/assets/qiuzhao-ruyi-autumn-offer-logo-v2-96.png";
 function applyBranding(j) {
-  const name = (j && j.站点名称) || "秋招中台";
+  const name = (j && j.站点名称) || "投递中台";
   const custom = !!(j && j.logo);
+  BRAND_NAME = name;                       // 切页 title 也跟随自定义名（2026-10-04 修）
   const logo = custom ? ("api/branding/logo?v=" + (j.更新时间 || 0)) : BRAND_DEFAULT_LOGO;
   $("#brandName").textContent = name;
   $("#brandFoot").textContent = name;

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""秋招中台 · SQLite 存储层（A 方案，2026-09-24）——替换 Grist 的本地引擎
+"""投递中台 · SQLite 存储层（A 方案，2026-09-24）——替换 Grist 的本地引擎
 
 对外接口与 Grist 版 grist_store.py 完全一致（mail.py/中台看板.py/sync.py 零改动）：
     list_records / add_record / update_record / delete_record / add_exam / exams_of
