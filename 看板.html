@@ -467,10 +467,6 @@ table.rec .af{min-width:110px}
 .pophead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14.5px;font-weight:600}
 .pophead .x{cursor:pointer;color:var(--dim);padding:2px 9px;border-radius:7px;font-weight:400}
 .pophead .x:hover{color:var(--text);background:var(--card2)}
-/* 日详情浮层的左右日导航（2026-10-04）：‹ 明天 ›，跨月联动主月历 */
-.pophead .dn{cursor:pointer;color:var(--dim);padding:2px 9px;border-radius:7px;font-weight:400;display:flex;align-items:center;gap:8px}
-.pophead .dn:hover{color:var(--text);background:var(--card2)}
-.pophead .dn b{color:var(--text)}
 .popsec{font-size:12.5px;font-weight:600;margin:12px 0 7px;color:var(--dim)}
 .popsec.g{color:var(--green)} .popsec.r{color:var(--red)} .popsec.o{color:var(--orange)}
 .poprow{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);
@@ -1632,30 +1628,13 @@ function renderPast(exams) {
 
 /* 当天明细浮层：只读（完成/过期未完成/未完成 + 链接） */
 function closeDayPopup() { const p = document.querySelector(".popbg"); if (p) p.remove(); }
-let dayPopDate = null;   // 日详情浮层当前锚点（‹ › 导航用）
-function navDay(n) {
-  if (!dayPopDate) return;
-  const nd = new Date(dayPopDate);
-  nd.setDate(nd.getDate() + n);
-  /* 跨月/跨年时联动翻动主月历，保证浮层与底图永远一致 */
-  if (nd.getMonth() !== dayPopDate.getMonth() || nd.getFullYear() !== dayPopDate.getFullYear()) shiftCal(n);
-  showDayPopup(nd);
-}
 function showDayPopup(d, evs) {
   closeDayPopup();
   const t0 = day0(new Date());
-  const d0 = day0(d);
-  /* 未传事件（‹ › 导航进来）→ 按目标日重算；提醒仍只留在今天，防刷屏口径与月视图一致 */
-  if (!evs) evs = calEvents(d0, t0).filter(e => day0(e.d).getTime() === d0.getTime());
-  dayPopDate = d0;
   const ov = el("div", "popbg");
   const card = el("div", "popcard");
   const head = el("div", "pophead");
-  const nav = el("span", "dn");
-  const pv = el("span", "x", "‹"); pv.title = "前一天"; pv.onclick = () => navDay(-1);
-  const nb = el("span", "x", "›"); nb.title = "后一天"; nb.onclick = () => navDay(1);
-  nav.append(pv, el("b", null, fD(d) + " " + WD[d.getDay()] + (dayDiff(d, t0) === 0 ? " · 今天" : "")), nb);
-  head.append(nav);
+  head.append(el("b", null, fD(d) + " " + WD[d.getDay()] + (dayDiff(d, t0) === 0 ? " · 今天" : "")));
   const xc = el("span", "x", "✕"); xc.onclick = closeDayPopup;
   head.append(xc);
   card.append(head);
@@ -2080,29 +2059,25 @@ function renderCalWeek(box, byDay, today, mon) {
   box.append(grid);
 }
 
-function shiftWeek(n) {                  // 周翻页：以周一为锚，只动周（月网格独立由 calbar 翻）
+function shiftMonth(n) {   /* 顶部 ‹ › 专职翻月（2026-10-08 修：原 shiftCal 按 cal.mode 分支，
+                              老浏览器 localStorage 存了 mode:"week" 时顶部按钮只翻周、月不动，
+                              且双视图下月/周切换钮是隐藏的，用户无法自救） */
+  let m = cal.m + n;
+  cal.y += Math.floor(m / 12);
+  cal.m = ((m % 12) + 12) % 12;
+  saveCal(); renderCalendar();
+}
+function shiftWeek(n) {                  // 周翻页：以周一为锚，只动周（月网格独立由顶部按钮翻）
   const a = parseYmd(cal.week) || day0(new Date());
   a.setDate(a.getDate() - (a.getDay() + 6) % 7 + 7 * n);
   cal.week = ymd(a);
   saveCal(); renderCalendar();
 }
-function shiftCal(n) {
-  if (cal.mode === "month") {
-    let m = cal.m + n;
-    cal.y += Math.floor(m / 12);
-    cal.m = ((m % 12) + 12) % 12;
-  } else {
-    const a = parseYmd(cal.week) || day0(new Date());
-    a.setDate(a.getDate() + 7 * n);
-    cal.week = ymd(a);
-  }
-  saveCal(); renderCalendar();
-}
 document.querySelectorAll("#ctabs .ctab").forEach(b => b.onclick = () => {
   cal.ct = b.dataset.ct; saveCal(); renderCalendar();
 });
-$("#calPrev").onclick = () => shiftCal(-1);
-$("#calNext").onclick = () => shiftCal(1);
+$("#calPrev").onclick = () => shiftMonth(-1);
+$("#calNext").onclick = () => shiftMonth(1);
 $("#calToday").onclick = () => {
   const t = new Date();
   cal.y = t.getFullYear(); cal.m = t.getMonth(); cal.week = ymd(day0(t));
