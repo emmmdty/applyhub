@@ -197,9 +197,12 @@ def fetch_mails(all_=False):
 # ---------------- 规则抽取 ----------------
 def extract_type(subject, body):
     s = subject or ""
-    if re.search(r"AI面|AI测评|AI测试", s): return "测评"   # AI面试→测评类型（不推进状态）
+    if re.search(r"技术测评", s): return "笔试"             # 技术测评→笔试类型（用户定版）；主题明示优先于正文 AI 检测
     if re.search(r"笔试\s*[（(]?\s*测评|测评\s*[（(]?\s*笔试", s): return "测评"  # 「笔试（测评）」实为测评（九方智投，用户定版 2026-09-21）
-    if re.search(r"技术测评", s): return "笔试"             # 技术测评→笔试类型（用户定版）
+    # AI 面试/测评 → 测评类型（不推进状态）。2026-10-08 修：原只查主题，平安银行「AI面试」只出现在
+    # 正文（主题仅「面试邀请函」）被判成面试；且不容忍「AI 面试」带空格/Ai 大小写变体 → 同样漏判。
+    sb = f"{s}\n{(body or '')[:600]}"
+    if re.search(r"AI\s*面(?:试)?|AI\s*测评|AI\s*测试|AI\s*interview", sb, re.I): return "测评"
     if re.search(r"问卷|登记表", s): return "问卷"          # 问卷/登记表→要填写的事务（用户定版 2026-09-23）
     if re.search(r"感谢[你您]?(?:投递|应聘)|简历已收到|流程指引|应聘反馈|笔试反馈|面试反馈", s): return "通知"  # 纯通知：只存档不建行不推状态（恒生案例 2026-09-23）
     if re.search(r"笔试|测评|评测|测试|在线考试|考试邀请|考试通知|面试邀约|面试邀请|面试通知", s):
@@ -737,6 +740,10 @@ def plan_exam(ext, mtype, recv):
     if mtype == "面试":
         if ws and wmode in ("固定场次", "场次+时长", "时间窗"):
             return ("面试", _naive(ws), _naive(we) if we else None)
+        if wmode in ("截止日", "相对时限") and we:
+            # 完成式窗口（AI面试/录播面试「X日前作答」）：收信→截止，与测评同语义。
+            # 2026-10-08 修：原直接 return None——平安银行 AI 面试（截止 10-13 23:55）被静默吞掉。
+            return ("面试", _naive(ws), _naive(we))
         return None
     if mtype == "笔试":
         if not ws or wmode == "无信息":

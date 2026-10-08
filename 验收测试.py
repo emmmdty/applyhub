@@ -761,6 +761,38 @@ try:
         g.CONFIG_PATH = _orig_cfg31
         os.environ.pop("BRANDING_DIR", None)
 
+    print("== T32 AI面试解析回归（2026-10-08 平安银行/招商银行漏收录） ==")
+    _pbody = ("亲爱的同学：感谢关注平安银行校园招聘，现邀请您参加AI 应用研发工程师岗位的面试，"
+              "面试安排如下：面试方式：AI面试 面试作答截止时间：2026-10-13 23:55（北京时间）"
+              " 面试路径：下载平安口袋银行App")
+    check("正文AI面试→测评类型(原判面试)",
+          mail.extract_type("【平安银行】面试邀请函", _pbody) == "测评")
+    check("AI 面试带空格也识别", mail.extract_type("邀请函", "请完成 AI 面试") == "测评")
+    check("Ai 小写变体也识别", mail.extract_type("邀请函", "Ai面试链接如下") == "测评")
+    check("主题技术测评仍优先判笔试(用户定版)",
+          mail.extract_type("【某厂】技术测评通知", "完成后进行AI面试") == "笔试")
+    _ext = {"deadline": (None, None, None, 2),
+            "window": ("截止日", mail.datetime.datetime(2026, 10, 8, 10, 52),
+                       mail.datetime.datetime(2026, 10, 13, 23, 55), "-", False),
+            "url": "", "_body": _pbody, "notes": [], "sessions": [], "sched": False}
+    _ex = mail.plan_exam(_ext, "面试", mail.datetime.datetime(2026, 10, 8, 10, 52))
+    check("面试截止式窗口→建行(原返回None)", _ex is not None and _ex[0] == "面试"
+          and _ex[2] is not None and "10-13" in str(_ex[2]), str(_ex))
+    _ex2 = mail.plan_exam({**_ext, "window": ("无信息", None, None, "-", False)},
+                          "面试", mail.datetime.datetime(2026, 10, 8, 10, 52))
+    check("面试无任何时间仍不建行(无意义提醒)", _ex2 is None)
+    print("== T33 已完成吸收的新一轮例外（2026-10-08 平安银行 AI 面试被吞） ==")
+    _co = g.add_record(g.T_MAIN, {"公司名称": "吸收测试大学", "投递状态": "面试中"})
+    _old = g.add_exam(_co["id"], "测评", "2026-09-29T10:31", "2026-10-11T23:55", 来源主题="旧测评")
+    g.update_record(g.T_EXAM, _old[0]["id"], {"完成": True})
+    _r1 = g.add_exam(_co["id"], "测评", "2026-10-08T10:52", "2026-10-13T23:55", 来源主题="新一轮AI面试")
+    check("新截止更晚→建新行", _r1[1] is True, str(_r1))
+    _r2 = g.add_exam(_co["id"], "测评", "2026-10-08T09:00", "2026-10-10T23:00", 来源主题="更早截止的重复提醒")
+    check("新截止不晚于已完成行→吸收不建行", _r2[1] is False)
+    _r3 = g.add_exam(_co["id"], "测评", "2026-10-08T11:00", "2026-10-11T23:55", 来源主题="同截止提醒")
+    check("同截止→吸收不建行", _r3[1] is False)
+
+
 finally:
     # 恢复真实路径（测试全程未触碰真实队列/状态文件）
     mail.QUEUE_PATH, mail.STATE_PATH = _real_queue_path, _real_state_path

@@ -370,7 +370,16 @@ def add_exam(记录id, 考试类型, 开始, 结束=None, 链接="", 来源主�
                 f = x["fields"]
                 if f.get("完成") is True and f.get("公司") in sib_ids \
                         and str(f.get("考试类型") or "") == 考试类型:
-                    return x, False
+                    # 已完成吸收（2026-09-24 定版）。2026-10-08 修：新窗口截止晚于已完成行
+                    # → 是新一轮考试而非旧考试的提醒，不吸收（平安银行 AI 面试截止
+                    # 10-13 晚于已完成测评的 10-11，曾被当重复提醒静默吞掉）
+                    new_end = _exam_start_naive(结束) if 结束 else None
+                    old_end = _exam_start_naive(f.get("结束时间"))
+                    newer_round = isinstance(new_end, datetime.datetime) \
+                        and isinstance(old_end, datetime.datetime) and new_end > old_end
+                    if not newer_round:
+                        return x, False
+                    # 更晚的已完成行可能还有，继续找；都找不到才真正建新行
     rec = add_record(T_EXAM, {"公司": 记录id, "考试类型": 考试类型, "开始时间": 开始,
                               "结束时间": 结束, "考试链接": 链接 or "", "完成": bool(done),
                               "完成时间": (done_at or datetime.datetime.now(CST)) if done else None,
